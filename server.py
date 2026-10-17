@@ -1,14 +1,17 @@
 import os
 import sqlite3
 import random
+import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from aiogram import Bot
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 import uvicorn
 
-app = FastAPI(title="NFT case API")
+app = FastAPI(title="NFT Case API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,16 +21,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Твой реальный токен от BotFather
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8840874512:AAHcjdgyFj5l6J-_oYk2PL_CafNfI6oQXB4")
+WEB_APP_URL = "https://hustlecase-4.onrender.com/"
+
 bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher()
 
-# --- КАТАЛОГИ ВСЕХ 5 КЕЙСОВ БЕЗ КАРТИНОК ---
+# --- ОБРАБОТЧИК /start В ЧАТЕ ---
+@dp.message(Command("start"))
+async def cmd_start(message: types.Message):
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(
+            text="🎰 Открыть Hustle Hub", 
+            web_app=WebAppInfo(url=WEB_APP_URL)
+        )]
+    ])
+    
+    await message.answer(
+        "🎰 **Добро пожаловать в Hustle Case!**\n\n"
+        "⚡️ Элитный хаб с кейсами, NFT-подарками и скоростным Крашем прямо в Telegram.\n\n"
+        "Жми кнопку ниже, забирай баланс и срывай куш! 🚀",
+        reply_markup=keyboard,
+        parse_mode="Markdown"
+    )
 
+# --- КАТАЛОГИ КЕЙСОВ ---
 DEFAULT_CASE_GIFTS = [
     {"id": "gift_heart", "name": "Сердце", "price": 15},
     {"id": "gift_bear", "name": "Мишка", "price": 15},
-    {"id": "gift_box", "name": "Подарочная коробка", "price": 25},
+    {"id": "gift_box", "name": "Коробка", "price": 25},
     {"id": "gift_rose", "name": "Роза", "price": 25},
     {"id": "gift_cake", "name": "Торт", "price": 50},
     {"id": "gift_rocket", "name": "Ракета", "price": 50},
@@ -75,18 +97,17 @@ SKULL_CASE_GIFTS = [
 NFT_CASE_GIFTS = [
     {"id": "nft_lolpop", "name": "Lol Pop NFT", "price": 1211},
     {"id": "nft_candle", "name": "Свеча NFT", "price": 1075},
-    {"id": "nft_key_heart", "name": "Сердце с ключом NFT", "price": 2107},
+    {"id": "nft_key_heart", "name": "Сердце NFT", "price": 2107},
     {"id": "nft_pumpkin_leg", "name": "Тыква NFT", "price": 1310},
-    {"id": "nft_skull_flower", "name": "Цветок с черепом NFT", "price": 1200},
-    {"id": "nft_turntable", "name": "Проигрыватель NFT", "price": 1295},
+    {"id": "nft_skull_flower", "name": "Череп-Цветок NFT", "price": 1200},
+    {"id": "nft_turntable", "name": "Вертушка NFT", "price": 1295},
     {"id": "nft_broom", "name": "Метла NFT", "price": 1265},
-    {"id": "nft_eagle", "name": "Кристальный орёл NFT", "price": 2601},
-    {"id": "nft_ring_gold", "name": "Золотой перстень NFT", "price": 3317},
-    {"id": "nft_voodoo", "name": "Кукла Вуду NFT", "price": 3497},
+    {"id": "nft_eagle", "name": "Орёл NFT", "price": 2601},
+    {"id": "nft_ring_gold", "name": "Перстень NFT", "price": 3317},
+    {"id": "nft_voodoo", "name": "Вуду NFT", "price": 3497},
     {"id": "nft_cigar_leg", "name": "Сигара NFT", "price": 3583},
 ]
 
-# Общий список кейсов для фронтенда
 CASES_CONFIG = [
     {"id": "default", "name": "Default Case", "price": 75, "gifts": DEFAULT_CASE_GIFTS},
     {"id": "premium", "name": "Premium Case", "price": 199, "gifts": PREMIUM_CASE_GIFTS},
@@ -140,10 +161,7 @@ async def get_cases():
     cursor.execute("SELECT payout_pool FROM stats WHERE id = 1")
     pool = cursor.fetchone()[0]
     conn.close()
-    return {
-        "payout_pool": round(pool, 2),
-        "cases": CASES_CONFIG
-    }
+    return {"payout_pool": round(pool, 2), "cases": CASES_CONFIG}
 
 @app.get("/api/user/{user_id}")
 async def get_user(user_id: int):
@@ -229,10 +247,7 @@ async def spin_case(req: SpinRequest):
     won_gift = random.choice(allowed_gifts)
 
     try:
-        await bot.send_gift(
-            user_id=req.user_id,
-            gift_id=won_gift["id"]
-        )
+        await bot.send_gift(user_id=req.user_id, gift_id=won_gift["id"])
         cursor.execute("UPDATE stats SET payout_pool = payout_pool - ? WHERE id = 1", (won_gift["price"],))
         conn.commit()
     except Exception as e:
@@ -299,20 +314,11 @@ async def play_crash(data: CrashPlayRequest):
         "new_balance": new_balance
     }
 
-@app.get("/api/stats")
-async def get_stats():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT total_deposits, owner_profit, payout_pool FROM stats WHERE id = 1")
-    row = cursor.fetchone()
-    conn.close()
-    return {
-        "total_deposits": row[0],
-        "owner_profit_60": row[1],
-        "payout_pool_40": row[2]
-    }
-
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
+@app.on_event("startup")
+async def on_startup():
+    asyncio.create_task(dp.start_polling(bot))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
