@@ -19,10 +19,12 @@ app.add_middleware(
 )
 
 BOT_TOKEN = "8840874512:AAHcjdgyFj5l6J-_oYk2PL_CafNfI6oQXB4"
+ADMIN_TELEGRAM_ID = 8510236481  # Твой реальный Telegram ID для уведомлений
+
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Инициализация базы данных с защитой баланса и пула
+# Инициализация базы данных
 def init_db():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -142,7 +144,6 @@ class SpinRequest(BaseModel):
     case_id: str
     is_demo: bool
 
-# Раздача фронтенда
 @app.get("/", response_class=HTMLResponse)
 async def read_index():
     if os.path.exists("index.html"):
@@ -158,6 +159,10 @@ async def get_cases():
 async def get_user(user_id: int):
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
+    
+    cursor.execute("INSERT OR IGNORE INTO users (user_id, balance) VALUES (?, 0)", (user_id,))
+    conn.commit()
+
     cursor.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     balance = row[0] if row else 0
@@ -178,6 +183,12 @@ async def create_invoice(req: InvoiceRequest):
             currency="XTR",
             prices=prices
         )
+        
+        try:
+            await bot.send_message(ADMIN_TELEGRAM_ID, f"🔔 Создан инвойс на пополнение!\n👤 Юзер: <code>{req.user_id}</code>\n💰 Сумма: <b>{req.amount} ⭐</b>", parse_mode="HTML")
+        except:
+            pass
+
         return {"invoice_link": invoice_link}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -200,36 +211,32 @@ async def spin_case(req: SpinRequest):
             conn.close()
             raise HTTPException(status_code=400, detail="Недостаточно звезд на балансе")
         
-        # Списываем баланс игрока
         cursor.execute("UPDATE users SET balance = balance - ? WHERE user_id = ?", (case["price"], req.user_id))
         
-        # Строгое распределение 60% владельцу, 40% в пул выплат
         owner_cut = case["price"] * 0.60
         pool_cut = case["price"] * 0.40
         cursor.execute("UPDATE stats SET owner_profit = owner_profit + ?, payout_pool = payout_pool + ? WHERE id = 1", (owner_cut, pool_cut))
 
-    # ЗАЩИТА БАЛАНСА И ПУЛА:
-    # Проверяем текущее состояние пула в базе данных
-    cursor.execute("SELECT payout_pool, owner_profit FROM stats WHERE id = 1")
+    cursor.execute("SELECT payout_pool FROM stats WHERE id = 1")
     stats_row = cursor.fetchone()
     payout_pool = stats_row[0] if stats_row else 0
 
-    # Фильтруем призы: если стоимость подарка превышает текущий безопасный порог пула, 
-    # система автоматически подстраховывает баланс и перенаправляет на более легкий приз, 
-    # гарантируя, что бот никогда не уйдет в минус.
     safe_gifts = [g for g in case["gifts"] if req.is_demo or g["price"] <= (payout_pool + case["price"])]
     if not safe_gifts:
-        safe_gifts = [case["gifts"][0]] # Самый надежный дешевый приз для защиты баланса
+        safe_gifts = [case["gifts"][0]]
 
     won_gift = random.choice(safe_gifts)
 
     if not req.is_demo:
-        # Списываем стоимость выданного приза из пула выплат, сохраняя прибыль владельца нетронутой
         cursor.execute("UPDATE stats SET payout_pool = MAX(0, payout_pool - ?) WHERE id = 1", (won_gift["price"],))
-        
         cursor.execute("INSERT INTO inventory (user_id, gift_name, gift_price) VALUES (?, ?, ?)", 
                        (req.user_id, won_gift["name"], won_gift["price"]))
         conn.commit()
+
+        try:
+            await bot.send_message(ADMIN_TELEGRAM_ID, f"🎁 Игрок открыл кейс!\n👤 Юзер: <code>{req.user_id}</code>\n📦 Кейс: <b>{case['name']}</b>\n🏆 Выиграл: <b>{won_gift['name']} ({won_gift['price']} ⭐)</b>", parse_mode="HTML")
+        except:
+            pass
 
     cursor.execute("SELECT balance FROM users WHERE user_id = ?", (req.user_id,))
     new_balance = cursor.fetchone()[0]
