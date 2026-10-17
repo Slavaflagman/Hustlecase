@@ -3,6 +3,7 @@ import sqlite3
 import random
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import LabeledPrice
@@ -140,6 +141,14 @@ class SpinRequest(BaseModel):
     user_id: int
     case_id: str
     is_demo: bool
+
+# Раздача фронтенда (главной страницы)
+@app.get("/", response_class=HTMLResponse)
+async def read_index():
+    if os.path.exists("index.html"):
+        with open("index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    return "<h1>Файл index.html не найден в корне проекта!</h1>"
 
 @app.get("/api/cases")
 async def get_cases():
