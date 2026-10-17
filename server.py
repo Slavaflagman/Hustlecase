@@ -1,10 +1,14 @@
 import os
 import sqlite3
 import random
+import asyncio
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from aiogram import Bot
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 
 app = FastAPI(title="Hustle Case API")
 
@@ -16,8 +20,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-BOT_TOKEN = "8840874512:AAHcjdgyFj5l6J-_oYk2PL_CafNfI6oQXB4"
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8840874512:AAHcjdgyFj5l6J-_oYk2PL_CafNfI6oQXB4")
 bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher()
 
 # --- КАТАЛОГИ ВСЕХ 5 КЕЙСОВ И ЦЕНЫ ---
 
@@ -123,11 +128,10 @@ class DepositRequest(BaseModel):
 class SpinRequest(BaseModel):
     user_id: int
     case_type: str
-    is_demo: bool = False  # Флаг демо-режима
+    is_demo: bool = False
 
 @app.get("/api/cases")
 async def get_cases():
-    """Возвращает список всех кейсов и их наполнение для фронтенда (просмотр подарков)"""
     return {"cases": CASES_CONFIG}
 
 @app.post("/api/deposit")
@@ -157,16 +161,12 @@ async def process_deposit(req: DepositRequest):
 
 @app.post("/api/spin")
 async def spin_case(req: SpinRequest):
-    """Прокрут кейса: поддерживает демо-режим и реальные спины с защитой пула"""
-    
-    # Находим нужный кейс по типу
     case_data = next((c for c in CASES_CONFIG if c["id"] == req.case_type), None)
     if not case_data:
         raise HTTPException(status_code=400, detail="Кейс не найден")
     
     catalog = case_data["gifts"]
 
-    # ДЕМО-РЕЖИМ: крутим бесплатно, баланс не трогаем, призы не отправляем
     if req.is_demo:
         won_gift = random.choice(catalog)
         return {
@@ -176,11 +176,9 @@ async def spin_case(req: SpinRequest):
             "message": "Демо-прокрутка завершена!"
         }
 
-    # РЕАЛЬНЫЙ РЕЖИМ
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    # Проверяем баланс пользователя
     cursor.execute("SELECT balance FROM users WHERE user_id = ?", (req.user_id,))
     row = cursor.fetchone()
     user_balance = row[0] if row else 0
@@ -189,7 +187,6 @@ async def spin_case(req: SpinRequest):
         conn.close()
         raise HTTPException(status_code=400, detail="Недостаточно средств на балансе")
 
-    # Проверяем пул выплат
     cursor.execute("SELECT payout_pool FROM stats WHERE id = 1")
     current_pool = cursor.fetchone()[0]
 
@@ -204,11 +201,9 @@ async def spin_case(req: SpinRequest):
 
     won_gift = random.choice(allowed_gifts)
 
-    # Списываем стоимость кейса с баланса юзера
     cursor.execute("UPDATE users SET balance = balance - ? WHERE user_id = ?", (case_data["price"], req.user_id))
 
     try:
-        # Отправляем официальный подарок через Telegram API
         await bot.send_gift(user_id=req.user_id, gift_id=won_gift["id"])
         cursor.execute("UPDATE stats SET payout_pool = payout_pool - ? WHERE id = 1", (won_gift["price"],))
         conn.commit()
@@ -223,3 +218,39 @@ async def spin_case(req: SpinRequest):
         "won_gift": won_gift,
         "message": f"Поздравляем! Вы выиграли {won_gift['name']}!"
     }
+
+# Обработчик команды /start для Telegram-бота
+@dp.message(Command("start"))
+async def cmd_start(message: types.Message):
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (message.from_user.id,))
+    if not cursor.fetchone():
+        cursor.execute("INSERT INTO users (user_id, balance) VALUES (?, 0)", (message.from_user.id,))
+        conn.commit()
+    conn.close()
+
+    web_app_url = os.environ.get("WEB_APP_URL", "https://hustlecase-4.onrender.com/")
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🚀 Открыть Hustle Case", web_app=WebAppInfo(url=web_app_url))]
+    ])
+    
+    await message.answer(
+        "Добро пожаловать в Hustle Case!\n\nОткрывай кейсы и испытывай удачу.",
+        reply_markup=keyboard
+    )
+
+# Асинхронный запуск бота в фоновом режиме вместе с FastAPI
+async def start_telegram_bot():
+    try:
+        await dp.start_polling(bot)
+    except Exception as e:
+        print(f"Bot polling error: {e}")
+
+@app.on_event("startup")
+async def on_startup():
+    asyncio.create_task(start_telegram_bot())
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run("server:app", host="0.0.0.0", port=port)
