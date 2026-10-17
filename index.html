@@ -1,105 +1,320 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hustle Case</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0f0f11;
-            color: #ffffff;
             margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #050505;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 0);
+            background-size: 24px 24px;
+            color: #ffffff;
             padding: 16px;
+            padding-bottom: 90px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
-        .header {
+
+        /* Верхняя карточка с балансом */
+        .top-card {
             width: 100%;
             max-width: 400px;
+            background: rgba(18, 18, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 14px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
-        .balance-box {
-            background: #1a1a1e;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-weight: bold;
-            border: 1px solid #2d2d35;
+
+        .balance-label {
+            font-size: 17px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .btn {
-            background: #f39c12;
-            color: #fff;
+
+        .btn-topup {
+            background: #ffffff;
+            color: #000000;
             border: none;
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-weight: bold;
+            padding: 10px 22px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.2s;
+            transition: transform 0.1s ease, opacity 0.1s ease;
         }
-        .btn:active {
-            transform: scale(0.98);
+
+        .btn-topup:active {
+            transform: scale(0.96);
+            opacity: 0.9;
         }
-        .cases-container {
+
+        /* Контейнеры страниц */
+        .page-tab {
             width: 100%;
             max-width: 400px;
-            display: flex;
+            display: none;
             flex-direction: column;
             gap: 12px;
         }
+
+        .page-tab.active {
+            display: flex;
+        }
+
+        /* Общий стиль для карточек-блоков */
+        .ui-card {
+            background: rgba(18, 18, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Карточка кейса */
         .case-card {
-            background: #1a1a1e;
-            border: 1px solid #2d2d35;
+            background: rgba(18, 18, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
             padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+
+        .case-card:active {
+            transform: scale(0.98);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .case-icon-bg {
+            width: 58px;
+            height: 58px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .case-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .case-price {
+            font-size: 15px;
+            color: #b0b0b8;
+            font-weight: 600;
+        }
+
+        /* Тексты и кнопки внутри страниц */
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: #9898a0;
+            line-height: 1.4;
+        }
+
+        .btn-white {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 14px;
             border-radius: 16px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 6px;
+            transition: transform 0.1s ease;
+        }
+
+        .btn-white:active {
+            transform: scale(0.98);
+        }
+
+        .btn-dark {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.1s ease;
+        }
+
+        .btn-dark:active {
+            transform: scale(0.98);
+        }
+
+        /* Элементы инвентаря в Профиле */
+        .inventory-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .inventory-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            border-radius: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .case-card:hover {
-            border-color: #f39c12;
+            font-size: 14px;
+            font-weight: 600;
         }
 
-        /* Modal window & Roulette */
+        /* Нижняя навигация */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(10, 10, 12, 0.92);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-around;
+            padding: 14px 0 24px 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            color: #66666e;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: color 0.15s ease;
+            text-align: center;
+            flex: 1;
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+        }
+
+        /* Окно FAQ и Окна Рулетки */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(15px);
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            z-index: 100;
+            z-index: 200;
+            padding: 20px;
         }
+
+        .faq-card {
+            background: #121214;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 24px;
+            max-width: 380px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            color: #d0d0d8;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .faq-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        .faq-close {
+            position: absolute;
+            top: 20px; right: 20px;
+            width: 32px; height: 32px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .faq-section {
+            margin-bottom: 16px;
+        }
+
+        .faq-h {
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Рулетка */
         .roulette-window {
-            width: 300px;
-            height: 120px;
+            width: 320px;
+            height: 130px;
             overflow: hidden;
             position: relative;
-            background: #1a1a1e;
-            border-radius: 12px;
-            border: 2px solid #f39c12;
-            margin-bottom: 20px;
+            background: #121214;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            margin-bottom: 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
         }
+
         .roulette-pointer {
             position: absolute;
             top: 0; left: 50%;
             transform: translateX(-50%);
-            width: 4px; 
+            width: 3px; 
             height: 100%;
-            background: #ff4757;
+            background: #ff3b30;
             z-index: 10;
-            box-shadow: 0 0 8px #ff4757;
+            box-shadow: 0 0 12px #ff3b30;
         }
+
         .roulette-tape {
             display: flex;
             position: absolute;
@@ -107,51 +322,134 @@
             height: 100%;
             will-change: transform;
         }
+
         .roulette-item {
-            width: 100px;
-            height: 120px;
+            width: 105px;
+            height: 130px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: #25252b;
-            border-right: 1px solid #33333d;
-            font-size: 11px;
-            font-weight: bold;
+            background: #1a1a1e;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 12px;
+            font-weight: 600;
             text-align: center;
-            padding: 4px;
+            padding: 8px;
         }
+
         .result-text {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
             text-align: center;
-            min-height: 28px;
-            color: #f39c12;
+            color: #ffffff;
+            min-height: 30px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2 style="margin: 0;">Hustle Case</h2>
-        <div class="balance-box">Balance: <span id="balance">0</span> ⭐</div>
-        <button class="btn" onclick="topUp()">Top Up</button>
+    <!-- Шапка с балансом (Видна всегда) -->
+    <div class="top-card">
+        <div class="balance-label">
+            Баланс: <span id="balance">0</span> ⭐
+        </div>
+        <button class="btn-topup" onclick="topUp()">Пополнить</button>
     </div>
 
-    <div class="cases-container" id="cases-list">
-        <!-- Cases load dynamically -->
+    <!-- Вкладка 1: Кейсы -->
+    <div class="page-tab active" id="tab-cases">
+        <div class="cases-container" id="cases-list">
+            <!-- Динамические кейсы -->
+        </div>
     </div>
 
-    <!-- Roulette Modal -->
+    <!-- Вкладка 2: Рефералы -->
+    <div class="page-tab" id="tab-referals">
+        <div class="ui-card">
+            <div class="card-title">Реферальная система</div>
+            <div class="card-desc">Приглашай друзей и получай бонусы за их активность!</div>
+            <button class="btn-white" onclick="copyRefLink()">Скопировать реферальную ссылку</button>
+        </div>
+
+        <div class="ui-card">
+            <div class="card-title">Поддержка автора</div>
+            <div class="card-desc">Поблагодарить разработчика за создание проекта.</div>
+            <button class="btn-white" onclick="donateAuthor()">Задонатить 50 ⭐</button>
+        </div>
+    </div>
+
+    <!-- Вкладка 3: Профиль -->
+    <div class="page-tab" id="tab-profile">
+        <div class="ui-card" style="align-items: center; text-align: center;">
+            <div class="card-desc" style="font-size: 13px;">Ваш баланс звезд</div>
+            <div style="font-size: 28px; font-weight: 800; margin-top: 4px;">
+                <span id="profile-balance">0</span> ⭐
+            </div>
+        </div>
+
+        <div class="ui-card">
+            <div class="card-title">Выигранные призы</div>
+            <div class="inventory-list" id="inventory-list">
+                <div class="card-desc">Пусто</div>
+            </div>
+        </div>
+
+        <button class="btn-dark" onclick="openFaq()">Об игре (FAQ и правила)</button>
+    </div>
+
+    <!-- Нижняя навигация -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchNav('cases', this)">Кейсы</div>
+        <div class="nav-item" onclick="switchNav('referals', this)">Рефералы</div>
+        <div class="nav-item" onclick="switchNav('profile', this)">Профиль</div>
+    </div>
+
+    <!-- Модалка FAQ / Правила -->
+    <div class="modal" id="faq-modal">
+        <div class="faq-card">
+            <div class="faq-close" onclick="closeFaq()">✕</div>
+            <div class="faq-title">Об игре / Правила</div>
+
+            <div class="faq-section">
+                <div class="faq-h">⚡ Что за проект и почему он свежий?</div>
+                Hustle Case — это абсолютно новый независимый развлекательный веб-сервис внутри Telegram, созданный на стыке блокчейн-технологий мессенджера и игровых механик. Проект запущен совсем недавно, поэтому мы только набираем обороты, внедряем топовые фичи и формируем крутое сообщество.
+            </div>
+
+            <div class="faq-section">
+                <div class="faq-h">🔗 Как устроен блокчейн звёзд (Telegram Stars)?</div>
+                Все транзакции пополнения и обращения баланса работают на базе официальной экосистемы Telegram Stars (XTR). Это внутренняя цифровая единица Telegram, которая защищена блокчейн-логикой платформы. Когда ты пополняешь счет, перевод обрабатывается серверами Telegram напрямую через защищенные инвойсы — мы не имеем доступа к твоим банковским картам или реквизитам.
+            </div>
+
+            <div class="faq-section">
+                <div class="faq-h">⏳ Внимание: задержка выплат (до 21 дня) и роль комьюнити</div>
+                Из-за жестких регламентов блокчейна Telegram Stars для новых смарт-контрактов, первые выплаты и переводы могут идти с сильным опозданием (вплоть до 21 дня). Однако всё зависит от активности: чем больше игроков присоединяется к проекту и чем выше общий пул баланса бота, тем быстрее обрабатываются транзакции сети. Приток пользователей поможет разгрузить очередь, и со временем выплаты пойдут постоянным потоком каждый день!
+            </div>
+
+            <div class="faq-section">
+                <div class="faq-h">🎲 Это точно не обман? Как работает рандом?</div>
+                Никакой «подкрутки» нет. Выпадение предметов и победа рассчитываются на стороне защищенного сервера честным случайным алгоритмом. Баланс пула и выпадение ценных NFT или подарков распределяются автоматически по строгой математической модели.
+            </div>
+
+            <div class="faq-section">
+                <div class="faq-h">📜 Главные правила:</div>
+                1. Возраст и осознанность: проект создан для развлечения. Трать только те звезды, которые готов использовать для игры.<br>
+                2. Безопасность: администрация никогда не попросит твой пароль или данные аккаунта.<br>
+                3. Честная игра: любые попытки взломать или обойти серверную логику пресекаются блокировкой.
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка Рулетки -->
     <div class="modal" id="roulette-modal">
-        <div class="result-text" id="result-text">Spinning...</div>
+        <div class="result-text" id="result-text">Открываем...</div>
         <div class="roulette-window">
             <div class="roulette-pointer"></div>
             <div class="roulette-tape" id="roulette-tape"></div>
         </div>
-        <button class="btn" id="close-modal-btn" style="display:none;" onclick="closeModal()">Claim Prize</button>
+        <button class="btn-white" id="close-modal-btn" style="display:none; width: 220px;" onclick="closeRoulette()">Забрать приз</button>
     </div>
 
     <script>
@@ -170,9 +468,26 @@
             try {
                 const res = await fetch(`/api/user/${userId}`);
                 const data = await res.json();
+                
                 document.getElementById('balance').innerText = data.balance;
+                document.getElementById('profile-balance').innerText = data.balance;
+
+                const invContainer = document.getElementById('inventory-list');
+                if (data.inventory && data.inventory.length > 0) {
+                    invContainer.innerHTML = '';
+                    data.inventory.forEach(item => {
+                        invContainer.innerHTML += `
+                            <div class="inventory-item">
+                                <span>🎁 ${item.name}</span>
+                                <span style="color:#888892;">${item.price} ⭐</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    invContainer.innerHTML = '<div class="card-desc">Пусто</div>';
+                }
             } catch (e) {
-                console.error("User fetch error:", e);
+                console.error("Ошибка сети профиля:", e);
             }
         }
 
@@ -183,7 +498,7 @@
                 casesData = data.cases;
                 renderCases();
             } catch (e) {
-                console.error("Cases fetch error:", e);
+                console.error("Ошибка кейсов:", e);
             }
         }
 
@@ -193,18 +508,18 @@
             casesData.forEach(c => {
                 container.innerHTML += `
                     <div class="case-card" onclick="openCase('${c.id}')">
+                        <div class="case-icon-bg">🎁</div>
                         <div>
-                            <div style="font-size: 16px; font-weight: bold;">${c.name}</div>
-                            <div style="color: #888; font-size: 13px; margin-top: 4px;">🎁 Open for prizes</div>
+                            <div class="case-title">${c.name}</div>
+                            <div class="case-price">${c.price} ⭐</div>
                         </div>
-                        <div style="font-size: 16px; font-weight: bold; color: #f39c12;">${c.price} ⭐</div>
                     </div>
                 `;
             });
         }
 
         async function topUp() {
-            const amount = prompt("How many stars do you want to deposit?", "100");
+            const amount = prompt("Укажите сумму пополнения в ⭐:", "100");
             if (!amount || isNaN(amount)) return;
             try {
                 const res = await fetch('/api/create-invoice', {
@@ -216,14 +531,40 @@
                 if (data.invoice_link) {
                     tg.openInvoice(data.invoice_link, async (status) => {
                         if (status === 'paid') {
-                            alert("Payment successful!");
                             await fetchUser();
                         }
                     });
                 }
             } catch (e) {
-                alert("Error creating invoice");
+                alert("Ошибка формирования инвойса");
             }
+        }
+
+        async function donateAuthor() {
+            try {
+                const res = await fetch('/api/create-invoice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, amount: 50 })
+                });
+                const data = await res.json();
+                if (data.invoice_link) {
+                    tg.openInvoice(data.invoice_link, async (status) => {
+                        if (status === 'paid') {
+                            alert("Спасибо за поддержку!");
+                            await fetchUser();
+                        }
+                    });
+                }
+            } catch (e) {
+                alert("Ошибка доната");
+            }
+        }
+
+        function copyRefLink() {
+            const refLink = `https://t.me/HustleCaseBot?start=${userId}`;
+            navigator.clipboard.writeText(refLink);
+            alert("Реферальная ссылка скопирована!");
         }
 
         async function openCase(caseId) {
@@ -233,10 +574,9 @@
             const closeBtn = document.getElementById('close-modal-btn');
 
             modal.style.display = 'flex';
-            resultText.innerText = 'Spinning...';
+            resultText.innerText = 'Открываем...';
             closeBtn.style.display = 'none';
             
-            // Reset transition and offset for instant redraw
             tape.style.transition = 'none';
             tape.style.transform = 'translateX(0px)';
             tape.innerHTML = '';
@@ -250,55 +590,64 @@
                 
                 if (!res.ok) {
                     const err = await res.json();
-                    alert(err.detail || "Opening error");
+                    alert(err.detail || "Не удалось открыть кейс");
                     modal.style.display = 'none';
                     return;
                 }
 
                 const data = await res.json();
 
-                // Render exact server-generated tape
                 data.roulette_tape.forEach(gift => {
                     const item = document.createElement('div');
                     item.className = 'roulette-item';
                     item.innerHTML = `
-                        <span style="font-size: 24px;">🎁</span>
-                        <span style="margin-top:6px; word-break: break-word;">${gift.name}</span>
-                        <span style="color:#f39c12; margin-top:2px;">${gift.price} ⭐</span>
+                        <span style="font-size: 26px;">🎁</span>
+                        <span style="margin-top:8px; word-break: break-word;">${gift.name}</span>
+                        <span style="color:#888892; margin-top:2px;">${gift.price} ⭐</span>
                     `;
                     tape.appendChild(item);
                 });
 
-                // Exact alignment calculation:
-                // Card width = 100px.
-                // Center of item at winningIndex = (winningIndex * 100) + 50.
-                // Container width = 300px, so center is at 150px.
-                const cardWidth = 100;
-                const containerWidth = 300;
-                const winningIndex = data.winner_index; // Index 25
+                const cardWidth = 105;
+                const containerWidth = 320;
+                const winningIndex = data.winner_index;
                 const targetOffset = (winningIndex * cardWidth) - (containerWidth / 2) + (cardWidth / 2);
 
-                // Start smooth spin animation
                 setTimeout(() => {
                     tape.style.transition = 'transform 4s cubic-bezier(0.12, 0.8, 0.15, 1)';
                     tape.style.transform = `translateX(-${targetOffset}px)`;
                 }, 50);
 
-                // Show result string matching the landed item after spin
                 setTimeout(() => {
-                    resultText.innerText = `You won: ${data.won_gift.name} (${data.won_gift.price} ⭐)!`;
+                    resultText.innerText = `Выиграно: ${data.won_gift.name} (${data.won_gift.price} ⭐)!`;
                     closeBtn.style.display = 'block';
-                    document.getElementById('balance').innerText = data.new_balance;
+                    fetchUser();
                 }, 4100);
 
             } catch (e) {
-                alert("Server connection error");
+                alert("Ошибка соединения с сервером");
                 modal.style.display = 'none';
             }
         }
 
-        function closeModal() {
+        function closeRoulette() {
             document.getElementById('roulette-modal').style.display = 'none';
+        }
+
+        function openFaq() {
+            document.getElementById('faq-modal').style.display = 'flex';
+        }
+
+        function closeFaq() {
+            document.getElementById('faq-modal').style.display = 'none';
+        }
+
+        function switchNav(tab, el) {
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.page-tab').forEach(e => e.classList.remove('active'));
+            
+            el.classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
         }
 
         init();
