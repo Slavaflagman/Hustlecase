@@ -1,14 +1,223 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hustle Case</title>
-    <!-- Подключаем официальный скрипт Telegram WebApp -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hustle Case | Premium WebApp</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  </head>
-  <body style="margin: 0; background-color: #0e0e11;">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #08090d;
+            --card-bg: rgba(26, 28, 36, 0.6);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-glow: rgba(243, 186, 47, 0.15);
+            --primary: #f3ba2f;
+            --text-main: #ffffff;
+            --text-muted: #8c909d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(243, 186, 47, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(120, 50, 255, 0.05) 0%, transparent 40%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Шапка */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 30%, #8c909d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            background: rgba(243, 186, 47, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(243, 186, 47, 0.2);
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* Bento Пул-карточка */
+        .bento-hero {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .bento-hero::before {
+            content: '';
+            position: absolute;
+            top: -50px; right: -50px;
+            width: 120px; height: 120px;
+            background: var(--accent-glow);
+            filter: blur(40px);
+            border-radius: 50%;
+        }
+        .hero-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .hero-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+
+        /* Сетка кейсов */
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+        .cases-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Карточка кейса в стиле Bento */
+        .case-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .case-card:active {
+            transform: scale(0.98);
+            border-color: rgba(243, 186, 47, 0.4);
+        }
+        .case-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .case-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        .open-btn {
+            background: linear-gradient(135deg, #f3ba2f 0%, #e09d11 100%);
+            color: #08090d;
+            border: none;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 13px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(243, 186, 47, 0.25);
+            transition: opacity 0.2s;
+        }
+        .open-btn:active {
+            opacity: 0.85;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Шапка -->
+        <div class="header">
+            <div class="logo">⚡ HUSTLE.CASE</div>
+            <div class="badge">SECURE POOL</div>
+        </div>
+
+        <!-- Главный блок пула (Bento Hero) -->
+        <div class="bento-hero">
+            <div class="hero-title">Призовой пул выплат</div>
+            <div class="hero-value"><span id="pool-balance">...</span> <span style="font-size: 20px;">⭐</span></div>
+        </div>
+
+        <div class="section-title">Доступные кейсы</div>
+
+        <!-- Список кейсов -->
+        <div class="cases-grid" id="cases-container">
+            <div class="loading">Загрузка данных кассы...</div>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Загружаем данные с бэкенда на Render
+        fetch('/api/cases')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('pool-balance').innerText = data.payout_pool;
+                const container = document.getElementById('cases-container');
+                container.innerHTML = '';
+                
+                data.cases.forEach(c => {
+                    container.innerHTML += `
+                        <div class="case-card">
+                            <div class="case-info">
+                                <h3>${c.name}</h3>
+                                <p>Цена открытия: <b>${c.price} ⭐</b></p>
+                            </div>
+                            <button class="open-btn" onclick="openCase(${c.id})">Открыть</button>
+                        </div>
+                    `;
+                });
+            })
+            .catch(err => {
+                document.getElementById('cases-container').innerHTML = '<div class="loading" style="color: #ff4b4b;">Ошибка подключения к серверу</div>';
+            });
+
+        function openCase(caseId) {
+            tg.HapticFeedback.impactOccurred('medium');
+            alert('Запрос на открытие кейса #' + caseId + ' отправлен!');
+        }
+    </script>
+</body>
 </html>
