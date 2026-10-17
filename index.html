@@ -2,341 +2,306 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hustle Case</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
-        body { background: #0a0a0c; color: #ffffff; min-height: 100vh; padding-bottom: 90px; }
-
-        /* TOP HEADER */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #121216; border-bottom: 1px solid #1c1c24; margin-bottom: 16px; }
-        .app-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #fff; letter-spacing: 0.5px; }
-        .wallets { display: flex; gap: 8px; }
-        .badge { background: #1c1c24; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid #2a2a36; color: #e1e1e6; }
-        .plus-btn { background: #ffffff; color: #000000; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-        /* SECTIONS CONTAINER */
-        .page-section { display: none; padding: 0 16px; }
-        .page-section.active { display: block; }
-
-        /* GAME BANNERS */
-        .game-banner { background: #141418; border: 1px solid #242430; border-radius: 18px; padding: 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
-        .game-banner:active { transform: scale(0.98); background: #1a1a20; }
-        .game-info h3 { font-size: 18px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
-        .game-info p { font-size: 12px; color: #8a8a93; }
-
-        /* ROULETTE SCREEN */
-        .case-screen { display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
-        .roulette-container { display: flex; align-items: center; gap: 12px; overflow: hidden; width: 100%; justify-content: center; height: 130px; }
-        .prize-card { background: #141418; border-radius: 16px; min-width: 100px; height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid #242430; transition: 0.3s; }
-        .prize-card.active { transform: scale(1.12); border-color: #ffffff; background: #1f1f26; box-shadow: 0 0 15px rgba(255,255,255,0.1); }
-        .prize-card .item-title { font-size: 12px; font-weight: 600; color: #fff; text-align: center; padding: 0 4px; }
-        .prize-card .price { font-size: 11px; font-weight: 600; color: #a0a0ab; }
-
-        /* PROFILE & REFERRAL */
-        .ref-box { background: #141418; border: 1px solid #242430; border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 16px; }
-        .ref-box h2 { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 6px; }
-        .ref-box p { font-size: 12px; color: #8a8a93; margin-bottom: 16px; line-height: 1.4; }
-
-        /* FAQ ACCORDION */
-        .faq-item { background: #141418; border: 1px solid #242430; border-radius: 14px; margin-bottom: 10px; overflow: hidden; }
-        .faq-header { padding: 14px 16px; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; cursor: pointer; color: #e1e1e6; }
-        .faq-body { padding: 0 16px 14px; font-size: 12px; color: #8a8a93; line-height: 1.5; display: none; }
-
-        /* NAVBAR */
-        .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #121216; display: flex; justify-content: space-around; padding: 14px 0; border-top: 1px solid #1c1c24; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #666673; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; width: 33%; }
-        .nav-item.active { color: #ffffff; }
-
-        /* MODALS */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; justify-content: center; align-items: flex-end; }
-        .modal-card { background: #141418; border-top: 1px solid #2a2a36; width: 100%; border-radius: 20px 20px 0 0; padding: 20px; max-height: 80vh; overflow-y: auto; }
-        .gifts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
-        .grid-item { background: #1c1c24; border: 1px solid #2a2a36; border-radius: 12px; padding: 12px 6px; text-align: center; }
-        .action-btn { width: 100%; padding: 14px; background: #ffffff; color: #000000; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-        .action-btn.secondary { background: #22222c; color: #ffffff; border: 1px solid #333342; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #0f0f13;
+            color: #ffffff;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .balance-badge {
+            background: #1a1a24;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #f39c12;
+            border: 1px solid #2a2a3b;
+        }
+        .mode-toggle {
+            display: flex;
+            background: #1a1a24;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #2a2a3b;
+        }
+        .mode-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #888;
+            padding: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mode-btn.active {
+            background: #33334d;
+            color: #fff;
+        }
+        .cases-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .case-card {
+            background: #16161f;
+            border: 1px solid #252536;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+        .case-info h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .case-info p {
+            font-size: 13px;
+            color: #a0a0b0;
+        }
+        .case-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn {
+            background: #f39c12;
+            color: #000;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            background: #252536;
+            color: #fff;
+        }
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 100;
+        }
+        .modal-content {
+            background: #16161f;
+            width: 100%;
+            max-height: 80vh;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            overflow-y: auto;
+            border-top: 1px solid #2a2a3b;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .gifts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .gift-item {
+            background: #1f1f2e;
+            border: 1px solid #2d2d42;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+        .gift-item p {
+            font-size: 12px;
+            margin-top: 6px;
+            color: #f39c12;
+        }
     </style>
 </head>
 <body>
 
-    <!-- TOP HEADER -->
-    <div class="top-bar">
-        <div class="app-title">Hustle Case</div>
-        <div class="wallets">
-            <div class="badge">⭐ <span id="real-stars">0</span></div>
-            <div class="badge" style="background: #181820;">⭐ <span id="game-stars">0</span> <button class="plus-btn" onclick="openExchange()">+</button></div>
-        </div>
+    <header>
+        <h1>Hustle Case</h1>
+        <div class="balance-badge" id="user-balance">0 ⭐</div>
+    </header>
+
+    <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-real" onclick="setMode(false)">💰 Реальный режим</button>
+        <button class="mode-btn" id="mode-demo" onclick="setMode(true)">🎮 Демо-режим</button>
     </div>
 
-    <!-- 1. IGRY (MAIN) -->
-    <div class="page-section active" id="sec-games">
-        <div class="game-banner" onclick="openCaseModal()">
-            <div class="game-info">
-                <h3>Gorilla Case</h3>
-                <p>Открывайте кейсы и выбивайте NFT-подарки</p>
-            </div>
-        </div>
-
-        <div class="game-banner" onclick="openCrashModal()">
-            <div class="game-info">
-                <h3>Краш Онлайн</h3>
-                <p>Ловите высокий множитель ракеты</p>
-            </div>
-        </div>
+    <div class="cases-grid" id="cases-container">
+        <!-- Кейсы подгружаются динамически через JS -->
     </div>
 
-    <!-- 2. PROFILE -->
-    <div class="page-section" id="sec-profile">
-        <div class="ref-box">
-            <h2>Поддержка автора</h2>
-            <p>Поделитесь ссылкой на приложение с друзьями, чтобы поддержать развитие проекта и автора.</p>
-            <button class="action-btn" onclick="shareRefLink()">Поделиться ссылкой</button>
-        </div>
-
-        <h3 style="font-size: 16px; margin-bottom: 8px;">Ваши подарки</h3>
-        <div class="gifts-grid" id="inventory-grid">
-            <p style="color: #8a8a93; font-size: 12px; grid-column: span 3;">У вас пока нет предметов</p>
-        </div>
-    </div>
-
-    <!-- 3. ABOUT / FAQ -->
-    <div class="page-section" id="sec-about">
-        <h2 style="margin-bottom: 14px; font-size: 18px;">Об игре</h2>
-
-        <div class="faq-item">
-            <div class="faq-header" onclick="toggleFaq(this)">Что это за приложение? <span>v</span></div>
-            <div class="faq-body">Hustle Case — это экосистема, где каждый игрок может выбить ценные NFT-подарки и вывести их прямо на свой аккаунт в Telegram.</div>
-        </div>
-
-        <div class="faq-item">
-            <div class="faq-header" onclick="toggleFaq(this)">Как функционирует касса выплат? <span>v</span></div>
-            <div class="faq-body">Распределение призов регулируется алгоритмом блокчейн-пула. Чем больше игроков и выше общая активность, тем быстрее наполняется банк выплат и тем чаще выпадают самые дорогие NFT.</div>
-        </div>
-
-        <div class="faq-item">
-            <div class="faq-header" onclick="toggleFaq(this)">Как выбить и получить подарок? <span>v</span></div>
-            <div class="faq-body">Выбирайте удобный режим (Кейсы или Краш), используйте игровые звёзды, а полученный при победе NFT-подарок моментально появится в вашем профиле.</div>
-        </div>
-
-        <div class="faq-item">
-            <div class="faq-header" onclick="toggleFaq(this)">Что такое звёзды? <span>v</span></div>
-            <div class="faq-body">Звёзды — это единая внутренняя валюта хаба, используемая для открытия кейсов, ставок и участия в инвентарных крутках.</div>
-        </div>
-    </div>
-
-    <!-- NAVBAR -->
-    <div class="navbar">
-        <div class="nav-item active" onclick="switchNav('sec-games', this)">
-            <span>Игры</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('sec-profile', this)">
-            <span>Профиль</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('sec-about', this)">
-            <span>Об игре</span>
-        </div>
-    </div>
-
-    <!-- MODAL: CASE GAME -->
-    <div class="modal-overlay" id="modal-case">
-        <div class="modal-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3 style="font-size: 16px;">Gorilla Case</h3>
-                <span style="font-size: 18px; cursor: pointer; color: #8a8a93;" onclick="closeModals()">X</span>
+    <!-- Модальное окно просмотра подарков и открытия -->
+    <div class="modal" id="case-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-case-title">Название кейса</h2>
+                <button class="close-btn" onclick="closeModal()">✕</button>
             </div>
-            
-            <div class="case-screen">
-                <div class="roulette-container" id="roulette"></div>
+            <p style="font-size: 13px; color: #a0a0b0; margin-bottom: 12px;">Возможные призы в кейсе:</p>
+            <div class="gifts-grid" id="modal-gifts-grid">
+                <!-- Список подарков -->
             </div>
-
-            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                <button class="action-btn secondary" onclick="openPrizesList()">Призы</button>
-                <button class="action-btn secondary" onclick="toggleDemoMode()" id="demo-btn">Демо: ВЫКЛ</button>
-            </div>
-
-            <button class="action-btn" id="spin-btn" onclick="spinCase()">Крутить за ⭐ 249</button>
-        </div>
-    </div>
-
-    <!-- MODAL: CRASH GAME -->
-    <div class="modal-overlay" id="modal-crash">
-        <div class="modal-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3 style="font-size: 16px;">Краш Онлайн</h3>
-                <span style="font-size: 18px; cursor: pointer; color: #8a8a93;" onclick="closeModals()">X</span>
-            </div>
-            
-            <div style="background: #1c1c24; border: 1px solid #2a2a36; padding: 20px; border-radius: 14px; text-align: center; margin-bottom: 12px;">
-                <div id="crash-mult" style="font-size: 34px; font-weight: 800; color: #fff;">1.00x</div>
-                <div id="crash-status" style="font-size: 11px; color: #8a8a93; margin-top: 4px;">ГОТОВ К СТАРТУ</div>
-            </div>
-
-            <input type="number" id="crash-bet" placeholder="Ставка (⭐)" value="50" style="width: 100%; padding: 12px; background: #1c1c24; border: 1px solid #2a2a36; border-radius: 10px; color: #fff; margin-bottom: 8px; font-size: 14px;">
-            <input type="number" id="crash-target" placeholder="Множитель (X)" value="2.0" step="0.1" style="width: 100%; padding: 12px; background: #1c1c24; border: 1px solid #2a2a36; border-radius: 10px; color: #fff; margin-bottom: 12px; font-size: 14px;">
-
-            <button class="action-btn" onclick="playCrash()">Старт</button>
-        </div>
-    </div>
-
-    <!-- MODAL: PRIZES LIST -->
-    <div class="modal-overlay" id="modal-prizes">
-        <div class="modal-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3 style="font-size: 16px;">Призы в кейсе</h3>
-                <span style="font-size: 18px; cursor: pointer; color: #8a8a93;" onclick="closeModals()">X</span>
-            </div>
-            <div class="gifts-grid" id="prizes-grid"></div>
-        </div>
-    </div>
-
-    <!-- MODAL: EXCHANGE -->
-    <div class="modal-overlay" id="modal-exchange">
-        <div class="modal-card">
-            <h3 style="font-size: 16px; margin-bottom: 6px;">Обмен Звёзд (1 к 1)</h3>
-            <p style="color: #8a8a93; font-size: 12px; margin-bottom: 14px;">Обменивайте реальные звёзды на игровые без комиссии</p>
-            <button class="action-btn" onclick="buyStars(100)">Обменять 100 ⭐</button>
-            <button class="action-btn secondary" onclick="buyStars(500)">Обменять 500 ⭐</button>
+            <button class="btn" style="width: 100%; padding: 14px; font-size: 15px;" id="modal-open-btn" onclick="spinCurrentCase()">Открыть кейс</button>
         </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        const userId = tg.initDataUnsafe?.user?.id || 12345678;
 
-        let currentGifts = [];
+        let userId = tg.initDataUnsafe?.user?.id || 123456789; // Тестовый ID, если запуск не из Telegram
+        let userBalance = 0;
         let isDemo = false;
+        let currentCaseId = null;
+        let casesData = [];
 
-        async function loadUserData() {
-            const res = await fetch(`/api/user/${userId}`);
-            const data = await res.json();
-            document.getElementById('real-stars').innerText = data.real_stars;
-            document.getElementById('game-stars').innerText = data.game_stars;
+        async function init() {
+            await loadUser();
+            await loadCases();
+        }
 
-            const grid = document.getElementById('inventory-grid');
-            if (data.inventory.length > 0) {
-                grid.innerHTML = data.inventory.map(i => `
-                    <div class="grid-item">
-                        <div style="font-size:12px; font-weight:600; color:#e1e1e6;">${i.name}</div>
+        async function loadUser() {
+            try {
+                let res = await fetch(`/api/deposit`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId, amount: 0 }) // Просто инициализация/проверка
+                });
+                // Или можно сделать отдельный запрос баланса, если настроен эндпоинт
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        async function loadCases() {
+            let res = await fetch('/api/cases');
+            let data = await res.json();
+            casesData = data.cases;
+            renderCases();
+        }
+
+        function renderCases() {
+            const container = document.getElementById('cases-container');
+            container.innerHTML = '';
+            casesData.forEach(c => {
+                container.innerHTML += `
+                    <div class="case-card">
+                        <div class="case-info">
+                            <h3>${c.name}</h3>
+                            <p>${c.price} ⭐</p>
+                        </div>
+                        <div class="case-actions">
+                            <button class="btn btn-secondary" onclick="openCaseModal('${c.id}')">Содержимое</button>
+                            <button class="btn" onclick="quickSpin('${c.id}')">Открыть</button>
+                        </div>
                     </div>
-                `).join('');
-            }
-        }
-
-        async function loadCaseData() {
-            const res = await fetch('/api/cases');
-            const data = await res.json();
-            currentGifts = data.cases[0].gifts;
-            renderRoulette();
-            renderPrizesGrid();
-        }
-
-        function renderRoulette() {
-            const container = document.getElementById('roulette');
-            container.innerHTML = currentGifts.map((g, idx) => `
-                <div class="prize-card ${idx === 2 ? 'active' : ''}">
-                    <div class="item-title">${g.name}</div>
-                    <div class="price">⭐ ${g.price}</div>
-                </div>
-            `).join('');
-        }
-
-        function renderPrizesGrid() {
-            const grid = document.getElementById('prizes-grid');
-            grid.innerHTML = currentGifts.map(g => `
-                <div class="grid-item">
-                    <div style="font-size:11px; margin-bottom:4px; color:#fff; font-weight:600;">${g.name}</div>
-                    <div style="font-size:11px; font-weight:bold; color:#8a8a93;">⭐ ${g.price}</div>
-                </div>
-            `).join('');
-        }
-
-        async function spinCase() {
-            const res = await fetch('/api/spin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, case_type: 'gorilla', is_demo: isDemo })
+                `;
             });
-            const data = await res.json();
-            if (!res.ok) return alert(data.detail || "Ошибка");
+        }
 
-            let count = 0;
-            const interval = setInterval(() => {
-                currentGifts.sort(() => Math.random() - 0.5);
-                renderRoulette();
-                count++;
-                if (count > 8) {
-                    clearInterval(interval);
-                    alert(data.is_demo ? `Демо-выигрыш: ${data.won_gift.name}` : `ВЫ ВЫБИЛИ: ${data.won_gift.name}!`);
-                    loadUserData();
+        function setMode(demo) {
+            isDemo = demo;
+            document.getElementById('mode-real').classList.toggle('active', !demo);
+            document.getElementById('mode-demo').classList.toggle('active', demo);
+        }
+
+        function openCaseModal(caseId) {
+            currentCaseId = caseId;
+            let c = casesData.find(item => item.id === caseId);
+            if (!c) return;
+
+            document.getElementById('modal-case-title').innerText = `${c.name} (${c.price} ⭐)`;
+            
+            let grid = document.getElementById('modal-gifts-grid');
+            grid.innerHTML = '';
+            c.gifts.forEach(g => {
+                grid.innerHTML += `
+                    <div class="gift-item">
+                        <div style="font-size: 24px;">🎁</div>
+                        <div style="font-size: 13px; font-weight: 500; margin-top: 4px;">${g.name}</div>
+                        <p>${g.price} ⭐</p>
+                    </div>
+                `;
+            });
+
+            document.getElementById('case-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('case-modal').style.display = 'none';
+        }
+
+        async function quickSpin(caseId) {
+            currentCaseId = caseId;
+            spinCurrentCase();
+        }
+
+        async function spinCurrentCase() {
+            try {
+                let res = await fetch('/api/spin', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: userId,
+                        case_type: currentCaseId,
+                        is_demo: isDemo
+                    })
+                });
+                let data = await res.json();
+                
+                if (res.ok) {
+                    alert(`${data.message}\nВыиграл: ${data.won_gift.name} (${data.won_gift.price} ⭐)`);
+                    closeModal();
+                } else {
+                    alert(data.detail || "Ошибка открытия кейса");
                 }
-            }, 100);
-        }
-
-        async function playCrash() {
-            const bet = parseInt(document.getElementById('crash-bet').value);
-            const target = parseFloat(document.getElementById('crash-target').value);
-            const res = await fetch('/api/crash/play', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, bet, target_multiplier: target })
-            });
-            const data = await res.json();
-            if (!res.ok) return alert(data.detail || "Ошибка");
-
-            document.getElementById('crash-mult').innerText = `${data.crashed_at}x`;
-            document.getElementById('crash-status').innerText = data.won ? `ПОБЕДА +${data.payout} ⭐` : "КРАШ!";
-            loadUserData();
-        }
-
-        function switchNav(sectionId, el) {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            el.classList.add('active');
-        }
-
-        function toggleFaq(header) {
-            const body = header.nextElementSibling;
-            body.style.display = body.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function shareRefLink() {
-            const refUrl = `https://t.me/HustleCaseBot?start=ref_${userId}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refUrl)}&text=${encodeURIComponent('Заходи в Hustle Case и выбивай NFT-подарки!')}`);
-        }
-
-        function toggleDemoMode() {
-            isDemo = !isDemo;
-            document.getElementById('demo-btn').innerText = isDemo ? "Демо: ВКЛ" : "Демо: ВЫКЛ";
-            document.getElementById('spin-btn').innerText = isDemo ? "Бесплатная крутка" : "Крутить за ⭐ 249";
-        }
-
-        function openCaseModal() { document.getElementById('modal-case').style.display = 'flex'; }
-        function openCrashModal() { document.getElementById('modal-crash').style.display = 'flex'; }
-        function openPrizesList() { document.getElementById('modal-prizes').style.display = 'flex'; }
-        function openExchange() { document.getElementById('modal-exchange').style.display = 'flex'; }
-        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
-
-        async function buyStars(amount) {
-            const res = await fetch('/api/exchange', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, amount: amount })
-            });
-            if (res.ok) {
-                closeModals();
-                loadUserData();
-                alert(`Успешно обменено ${amount} ⭐!`);
-            } else {
-                const data = await res.json();
-                alert(data.detail || "Ошибка");
+            } catch (e) {
+                alert("Ошибка соединения с сервером");
             }
         }
 
-        loadUserData();
-        loadCaseData();
+        init();
     </script>
 </body>
 </html>
