@@ -11,7 +11,7 @@ from aiogram.filters import Command
 from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 import uvicorn
 
-app = FastAPI(title="NFT Case API")
+app = FastAPI(title="Hustle Case API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,94 +27,33 @@ WEB_APP_URL = "https://hustlecase-4.onrender.com/"
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# --- ОБРАБОТЧИК /start В ЧАТЕ ---
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
+    args = message.text.split()
+    referrer_id = None
+    if len(args) > 1 and args[1].startswith("ref_"):
+        try:
+            referrer_id = int(args[1].replace("ref_", ""))
+        except:
+            pass
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (message.from_user.id,))
+    if not cursor.fetchone():
+        cursor.execute("INSERT INTO users (user_id, real_stars, game_stars, referrer_id) VALUES (?, 100, 500, ?)", 
+                       (message.from_user.id, referrer_id))
+        conn.commit()
+    conn.close()
+
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(
-            text="🎰 Открыть Hustle Hub", 
-            web_app=WebAppInfo(url=WEB_APP_URL)
-        )]
+        [InlineKeyboardButton(text="Открыть Hustle Case", web_app=WebAppInfo(url=WEB_APP_URL))]
     ])
-    
     await message.answer(
-        "🎰 **Добро пожаловать в Hustle Case!**\n\n"
-        "⚡️ Элитный хаб с кейсами, NFT-подарками и скоростным Крашем прямо в Telegram.\n\n"
-        "Жми кнопку ниже, забирай баланс и срывай куш! 🚀",
-        reply_markup=keyboard,
-        parse_mode="Markdown"
+        "Добро пожаловать в Hustle Case!\n\n"
+        "Открывай кейсы, играй в Краш и выигрывай NFT-подарки.",
+        reply_markup=keyboard
     )
-
-# --- КАТАЛОГИ КЕЙСОВ ---
-DEFAULT_CASE_GIFTS = [
-    {"id": "gift_heart", "name": "Сердце", "price": 15},
-    {"id": "gift_bear", "name": "Мишка", "price": 15},
-    {"id": "gift_box", "name": "Коробка", "price": 25},
-    {"id": "gift_rose", "name": "Роза", "price": 25},
-    {"id": "gift_cake", "name": "Торт", "price": 50},
-    {"id": "gift_rocket", "name": "Ракета", "price": 50},
-    {"id": "gift_trophy", "name": "Кубок", "price": 100},
-    {"id": "gift_ring", "name": "Кольцо", "price": 100},
-    {"id": "gift_diamond", "name": "Алмаз", "price": 100},
-]
-
-PREMIUM_CASE_GIFTS = [
-    {"id": "gift_tulip", "name": "Тюльпан", "price": 25},
-    {"id": "gift_rocket", "name": "Ракета", "price": 50},
-    {"id": "gift_champagne", "name": "Шампанское", "price": 50},
-    {"id": "nft_noodles", "name": "Лапша NFT", "price": 470},
-    {"id": "nft_torch", "name": "Факел NFT", "price": 480},
-    {"id": "nft_icecream", "name": "Эскимо NFT", "price": 490},
-    {"id": "nft_lollipop", "name": "Леденец NFT", "price": 500},
-]
-
-PUMPKIN_CASE_GIFTS = [
-    {"id": "gift_diamond", "name": "Алмаз", "price": 100},
-    {"id": "gift_rocket", "name": "Ракета", "price": 50},
-    {"id": "gift_champagne", "name": "Шампанское", "price": 50},
-    {"id": "nft_torch", "name": "Факел NFT", "price": 480},
-    {"id": "nft_coffee", "name": "Стаканчик NFT", "price": 500},
-    {"id": "nft_backpack", "name": "Рюкзак NFT", "price": 500},
-    {"id": "nft_lantern", "name": "Фонарь NFT", "price": 620},
-    {"id": "nft_mad_pumpkin", "name": "Mad Pumpkin NFT", "price": 1500},
-]
-
-SKULL_CASE_GIFTS = [
-    {"id": "gift_trophy", "name": "Кубок", "price": 100},
-    {"id": "gift_ring", "name": "Кольцо", "price": 100},
-    {"id": "gift_diamond", "name": "Алмаз", "price": 100},
-    {"id": "nft_book", "name": "Книга NFT", "price": 550},
-    {"id": "nft_jester", "name": "Колпак NFT", "price": 570},
-    {"id": "nft_medal", "name": "Медаль NFT", "price": 590},
-    {"id": "nft_sparkler", "name": "Искры NFT", "price": 612},
-    {"id": "nft_keycap", "name": "Клавиша NFT", "price": 628},
-    {"id": "nft_mushroom", "name": "Гриб NFT", "price": 628},
-    {"id": "nft_cigar", "name": "Сигара NFT", "price": 1507},
-    {"id": "nft_cats", "name": "Котики NFT", "price": 1972},
-    {"id": "nft_electric_skull", "name": "Electric Skull NFT", "price": 2500},
-]
-
-NFT_CASE_GIFTS = [
-    {"id": "nft_lolpop", "name": "Lol Pop NFT", "price": 1211},
-    {"id": "nft_candle", "name": "Свеча NFT", "price": 1075},
-    {"id": "nft_key_heart", "name": "Сердце NFT", "price": 2107},
-    {"id": "nft_pumpkin_leg", "name": "Тыква NFT", "price": 1310},
-    {"id": "nft_skull_flower", "name": "Череп-Цветок NFT", "price": 1200},
-    {"id": "nft_turntable", "name": "Вертушка NFT", "price": 1295},
-    {"id": "nft_broom", "name": "Метла NFT", "price": 1265},
-    {"id": "nft_eagle", "name": "Орёл NFT", "price": 2601},
-    {"id": "nft_ring_gold", "name": "Перстень NFT", "price": 3317},
-    {"id": "nft_voodoo", "name": "Вуду NFT", "price": 3497},
-    {"id": "nft_cigar_leg", "name": "Сигара NFT", "price": 3583},
-]
-
-CASES_CONFIG = [
-    {"id": "default", "name": "Default Case", "price": 75, "gifts": DEFAULT_CASE_GIFTS},
-    {"id": "premium", "name": "Premium Case", "price": 199, "gifts": PREMIUM_CASE_GIFTS},
-    {"id": "pumpkin", "name": "Pumpkin Case", "price": 349, "gifts": PUMPKIN_CASE_GIFTS},
-    {"id": "skull", "name": "Skull Case", "price": 499, "gifts": SKULL_CASE_GIFTS},
-    {"id": "nft", "name": "NFT Case", "price": 999, "gifts": NFT_CASE_GIFTS},
-]
 
 def init_db():
     conn = sqlite3.connect("database.db")
@@ -130,189 +69,177 @@ def init_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             user_id INTEGER PRIMARY KEY,
-            balance REAL DEFAULT 0.0
+            real_stars REAL DEFAULT 0.0,
+            game_stars REAL DEFAULT 0.0,
+            referrer_id INTEGER DEFAULT NULL
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS inventory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            item_name TEXT,
+            item_price REAL
         )
     """)
     cursor.execute("SELECT COUNT(*) FROM stats")
     if cursor.fetchone()[0] == 0:
-        cursor.execute("INSERT INTO stats (id, total_deposits, owner_profit, payout_pool) VALUES (1, 0, 0, 0)")
+        cursor.execute("INSERT INTO stats (id, total_deposits, owner_profit, payout_pool) VALUES (1, 0, 0, 5000)")
     conn.commit()
     conn.close()
 
 init_db()
 
-class DepositRequest(BaseModel):
+GORILLA_GIFTS = [
+    {"id": "nft_voodoo", "name": "Вуду NFT", "price": 3737},
+    {"id": "nft_ring", "name": "Перстень NFT", "price": 3374},
+    {"id": "nft_key_heart", "name": "Сердце с ключом", "price": 2270},
+    {"id": "nft_eagle", "name": "Кристальный орёл", "price": 1570},
+    {"id": "nft_flower", "name": "Цветок с черепом", "price": 1109},
+    {"id": "nft_eye", "name": "Око NFT", "price": 864},
+    {"id": "nft_socks", "name": "Носки NFT", "price": 524},
+    {"id": "nft_lantern", "name": "Фонарь NFT", "price": 523},
+    {"id": "nft_2025", "name": "2025 NFT", "price": 445},
+    {"id": "gift_star5", "name": "5 Звёзд", "price": 5},
+]
+
+CASES_CONFIG = [
+    {"id": "gorilla", "name": "Gorilla Case", "price": 249, "gifts": GORILLA_GIFTS}
+]
+
+class ExchangeRequest(BaseModel):
     user_id: int
     amount: int
 
 class SpinRequest(BaseModel):
     user_id: int
-    case_type: str = "default"
+    case_type: str = "gorilla"
+    is_demo: bool = False
 
-class CrashPlayRequest(BaseModel):
+class CrashRequest(BaseModel):
     user_id: int
     bet: int
     target_multiplier: float
 
 @app.get("/api/cases")
 async def get_cases():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT payout_pool FROM stats WHERE id = 1")
-    pool = cursor.fetchone()[0]
-    conn.close()
-    return {"payout_pool": round(pool, 2), "cases": CASES_CONFIG}
+    return {"cases": CASES_CONFIG}
 
 @app.get("/api/user/{user_id}")
 async def get_user(user_id: int):
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT real_stars, game_stars FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
-    balance = row[0] if row else 0.0
-    conn.close()
-    return {"user_id": user_id, "balance": balance}
+    if not row:
+        cursor.execute("INSERT INTO users (user_id, real_stars, game_stars) VALUES (?, 100, 500)", (user_id,))
+        conn.commit()
+        real_stars, game_stars = 100, 500
+    else:
+        real_stars, game_stars = row[0], row[1]
 
-@app.post("/api/deposit")
-async def process_deposit(req: DepositRequest):
+    cursor.execute("SELECT item_name, item_price FROM inventory WHERE user_id = ?", (user_id,))
+    items = [{"name": r[0], "price": r[1]} for r in cursor.fetchall()]
+
+    conn.close()
+    return {
+        "user_id": user_id, 
+        "real_stars": real_stars, 
+        "game_stars": game_stars,
+        "inventory": items
+    }
+
+@app.post("/api/exchange")
+async def exchange_stars(req: ExchangeRequest):
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
+    cursor.execute("SELECT real_stars FROM users WHERE user_id = ?", (req.user_id,))
+    row = cursor.fetchone()
+    user_stars = row[0] if row else 0
+
+    if user_stars < req.amount:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Недостаточно реальных звёзд")
+
+    cursor.execute("""
+        UPDATE users 
+        SET real_stars = real_stars - ?, game_stars = game_stars + ? 
+        WHERE user_id = ?
+    """, (req.amount, req.amount, req.user_id))
     
-    owner_share = req.amount * 0.60
-    pool_share = req.amount * 0.40
-
-    cursor.execute("""
-        UPDATE stats 
-        SET total_deposits = total_deposits + ?,
-            owner_profit = owner_profit + ?,
-            payout_pool = payout_pool + ?
-        WHERE id = 1
-    """, (req.amount, owner_share, pool_share))
-
-    cursor.execute("""
-        INSERT INTO users (user_id, balance) VALUES (?, ?)
-        ON CONFLICT(user_id) DO UPDATE SET balance = balance + ?
-    """, (req.user_id, req.amount, req.amount))
-
     conn.commit()
     conn.close()
-    return {"status": "success", "added_balance": req.amount}
+    return {"status": "success", "exchanged": req.amount}
 
 @app.post("/api/spin")
 async def spin_case(req: SpinRequest):
+    case_cfg = CASES_CONFIG[0]
+    case_price = case_cfg["price"]
+    catalog = case_cfg["gifts"]
+
+    if req.is_demo:
+        won_gift = random.choice(catalog)
+        return {"status": "success", "is_demo": True, "won_gift": won_gift}
+
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
+    cursor.execute("SELECT game_stars FROM users WHERE user_id = ?", (req.user_id,))
+    row = cursor.fetchone()
+    game_stars = row[0] if row else 0
+
+    if game_stars < case_price:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Недостаточно игровых звёзд")
+
+    cursor.execute("UPDATE users SET game_stars = game_stars - ? WHERE user_id = ?", (case_price, req.user_id))
     cursor.execute("SELECT payout_pool FROM stats WHERE id = 1")
     current_pool = cursor.fetchone()[0]
 
-    if req.case_type == "premium":
-        catalog = PREMIUM_CASE_GIFTS
-        case_price = 199
-    elif req.case_type == "pumpkin":
-        catalog = PUMPKIN_CASE_GIFTS
-        case_price = 349
-    elif req.case_type == "skull":
-        catalog = SKULL_CASE_GIFTS
-        case_price = 499
-    elif req.case_type == "nft":
-        catalog = NFT_CASE_GIFTS
-        case_price = 999
-    else:
-        catalog = DEFAULT_CASE_GIFTS
-        case_price = 75
-
-    cursor.execute("SELECT balance FROM users WHERE user_id = ?", (req.user_id,))
-    user_row = cursor.fetchone()
-    user_balance = user_row[0] if user_row else 0.0
-
-    if user_balance < case_price:
-        conn.close()
-        raise HTTPException(status_code=400, detail="Недостаточно звезд на балансе")
-
-    new_user_balance = user_balance - case_price
-    cursor.execute("UPDATE users SET balance = ? WHERE user_id = ?", (new_user_balance, req.user_id))
-
     allowed_gifts = [g for g in catalog if g["price"] <= current_pool]
-
     if not allowed_gifts:
-        conn.close()
-        return {
-            "status": "no_pool",
-            "won_gift": None,
-            "new_balance": user_balance,
-            "message": "Пул выплат пополняется! Попробуйте зайти чуть позже."
-        }
+        allowed_gifts = [catalog[-1]]
 
     won_gift = random.choice(allowed_gifts)
+
+    cursor.execute("INSERT INTO inventory (user_id, item_name, item_price) VALUES (?, ?, ?)",
+                   (req.user_id, won_gift["name"], won_gift["price"]))
 
     try:
         await bot.send_gift(user_id=req.user_id, gift_id=won_gift["id"])
         cursor.execute("UPDATE stats SET payout_pool = payout_pool - ? WHERE id = 1", (won_gift["price"],))
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        conn.close()
-        raise HTTPException(status_code=500, detail=f"Ошибка отправки подарка: {str(e)}")
-
-    conn.close()
-    return {
-        "status": "success",
-        "won_gift": won_gift,
-        "new_balance": new_user_balance,
-        "message": f"Поздравляем! Вы выбили {won_gift['name']}!"
-    }
-
-@app.post("/api/crash/play")
-async def play_crash(data: CrashPlayRequest):
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT balance FROM users WHERE user_id = ?", (data.user_id,))
-    user = cursor.fetchone()
-    user_balance = user[0] if user else 0.0
-    
-    if user_balance < data.bet or data.bet <= 0:
-        conn.close()
-        raise HTTPException(status_code=400, detail="Недостаточно средств")
-        
-    new_balance = user_balance - data.bet
-    cursor.execute("UPDATE users SET balance = ? WHERE user_id = ?", (new_balance, data.user_id))
-    
-    pool_cut = data.bet * 0.40
-    cursor.execute("UPDATE stats SET payout_pool = payout_pool + ? WHERE id = 1", (pool_cut,))
-    
-    crash_multiplier = round(max(1.00, 0.93 / (1.0 - random.random())), 2)
-    
-    won = data.target_multiplier <= crash_multiplier
-    payout = 0
-    
-    if won:
-        payout = int(data.bet * data.target_multiplier)
-        cursor.execute("SELECT payout_pool FROM stats WHERE id = 1")
-        current_pool = cursor.fetchone()[0]
-        
-        net_payout = payout - data.bet
-        if net_payout <= current_pool:
-            if net_payout > 0:
-                cursor.execute("UPDATE stats SET payout_pool = payout_pool - ? WHERE id = 1", (net_payout,))
-            new_balance += payout
-            cursor.execute("UPDATE users SET balance = ? WHERE user_id = ?", (new_balance, data.user_id))
-        else:
-            won = False
-            payout = 0
-            crash_multiplier = max(1.01, round(data.target_multiplier - 0.05, 2))
+    except Exception:
+        pass
 
     conn.commit()
     conn.close()
+    return {"status": "success", "is_demo": False, "won_gift": won_gift}
 
-    return {
-        "success": True,
-        "crashed_at": crash_multiplier,
-        "won": won,
-        "payout": payout,
-        "new_balance": new_balance
-    }
+@app.post("/api/crash/play")
+async def play_crash(req: CrashRequest):
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT game_stars FROM users WHERE user_id = ?", (req.user_id,))
+    row = cursor.fetchone()
+    game_stars = row[0] if row else 0
+
+    if game_stars < req.bet or req.bet <= 0:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Недостаточно звёзд")
+
+    new_stars = game_stars - req.bet
+    crash_mult = round(max(1.00, 0.94 / (1.0 - random.random())), 2)
+    won = req.target_multiplier <= crash_mult
+    payout = int(req.bet * req.target_multiplier) if won else 0
+
+    if won:
+        new_stars += payout
+
+    cursor.execute("UPDATE users SET game_stars = ? WHERE user_id = ?", (new_stars, req.user_id))
+    conn.commit()
+    conn.close()
+
+    return {"crashed_at": crash_mult, "won": won, "payout": payout, "new_stars": new_stars}
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
