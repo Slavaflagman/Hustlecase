@@ -2,31 +2,72 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hustle Case & Crash</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hustle NFT Case & Crash</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #08090d;
-            --card-bg: rgba(20, 22, 30, 0.7);
+            --bg-color: #050508;
+            --card-bg: rgba(15, 17, 23, 0.65);
             --card-border: rgba(255, 255, 255, 0.08);
-            --primary: #ffffff;
-            --accent: #f3ba2f;
+            --card-border-hover: rgba(255, 255, 255, 0.2);
             --text-main: #ffffff;
             --text-muted: #8c909d;
+            --accent: #ffffff;
+            --accent-glow: rgba(255, 255, 255, 0.15);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            padding: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            padding: 16px;
+        }
+
+        /* --- ПЕРЕЛИВАЮЩИЙСЯ ФОН И ЧАСТИЦЫ --- */
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -2;
+            background: radial-gradient(circle at 20% 20%, rgba(40, 40, 50, 0.3) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 80%, rgba(20, 20, 25, 0.4) 0%, transparent 50%);
+            animation: bgShift 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgShift {
+            0% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.05) translate(-10px, 15px); }
+            100% { transform: scale(1) translate(10px, -10px); }
+        }
+
+        /* Мелкие летающие белые частицы */
+        .particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: floatParticle linear infinite;
+        }
+        @keyframes floatParticle {
+            0% { transform: translateY(105vh) translateX(0); opacity: 0; }
+            20% { opacity: 0.5; }
+            80% { opacity: 0.5; }
+            100% { transform: translateY(-5vh) translateX(30px); opacity: 0; }
         }
 
         .container {
@@ -35,415 +76,362 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            z-index: 1;
             padding-bottom: 40px;
         }
 
-        /* Шапка */
-        .header {
+        /* Header / Bento Card */
+        .bento-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.3s;
+        }
+        .bento-card:hover {
+            border-color: var(--card-border-hover);
+        }
+
+        .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 14px 18px;
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
         }
-        .logo { font-size: 16px; font-weight: 700; letter-spacing: -0.5px; }
-        .balance-badge { font-size: 13px; font-weight: 600; color: var(--accent); display: flex; align-items: center; gap: 6px; }
-
-        /* Вкладки переключения */
-        .tabs {
+        .brand {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .balance-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
             display: flex;
-            background: var(--card-bg);
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--card-border);
-            padding: 4px;
             border-radius: 14px;
+            padding: 4px;
+            gap: 4px;
         }
         .tab-btn {
             flex: 1;
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 10px;
+            padding: 12px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 14px;
             border-radius: 10px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .tab-btn.active {
             background: #ffffff;
-            color: #08090d;
+            color: #000000;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
         }
 
-        .view-section { display: none; flex-direction: column; gap: 16px; }
-        .view-section.active { display: flex; }
-
-        /* Карточки Bento */
-        .bento-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 18px;
-            backdrop-filter: blur(10px);
-        }
-        .section-title { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; }
-
-        /* Список кейсов */
-        .cases-grid { display: flex; flex-direction: column; gap: 10px; }
-        .case-card {
-            background: rgba(25, 28, 38, 0.5);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 16px;
+        /* Pool Box */
+        .pool-box {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .case-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
-        .case-info p { font-size: 12px; color: var(--text-muted); }
-        
+        .pool-title { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        .pool-val { font-size: 18px; font-weight: 700; color: #fff; }
+
+        /* Sections */
+        .section { display: none; flex-direction: column; gap: 12px; }
+        .section.active { display: flex; }
+
+        /* Case Item Card */
+        .case-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            transition: transform 0.2s, border-color 0.3s;
+        }
+        .case-item:active { transform: scale(0.98); }
+        .case-item:hover { border-color: var(--card-border-hover); }
+
+        .case-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+        .case-price { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
         .action-btn {
             background: #ffffff;
-            color: #08090d;
+            color: #000000;
             border: none;
-            padding: 10px 16px;
+            padding: 10px 20px;
+            border-radius: 12px;
             font-weight: 700;
-            font-size: 13px;
-            border-radius: 10px;
+            font-size: 14px;
             cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
         }
+        .action-btn:active { transform: scale(0.95); opacity: 0.8; }
 
-        /* Экран Краша */
+        /* Crash Section */
         .crash-screen {
-            background: #111318;
-            border: 1px solid var(--card-border);
+            background: #020204;
             border-radius: 14px;
             height: 180px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            border: 1px solid var(--card-border);
             position: relative;
             overflow: hidden;
         }
-        .crash-multiplier { font-size: 40px; font-weight: 700; letter-spacing: -1px; }
-        .crash-status { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+        .crash-mult { font-size: 40px; font-weight: 900; color: #fff; letter-spacing: 1px; }
+        .crash-status { font-size: 12px; color: var(--text-muted); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .input-row {
-            display: flex;
-            gap: 8px;
-        }
-        input {
-            width: 100%;
-            background: #1a1c24;
+        .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .input-group input {
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px;
             color: #fff;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
         }
-        .preset-btn {
-            flex: 1;
-            background: #1a1c24;
-            border: 1px solid var(--card-border);
-            color: #fff;
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            cursor: pointer;
-        }
+        .input-group input:focus { border-color: rgba(255,255,255,0.4); }
 
-        /* Модальное окно рулетки кейсов */
+        /* Modal Result */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(8, 9, 13, 0.9);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none;
+            justify-content: center; align-items: center; z-index: 100;
             backdrop-filter: blur(10px);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #0e1017;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            padding: 28px;
+            width: 100%;
+            max-width: 340px;
+            text-align: center;
+            display: flex;
             flex-direction: column;
+            gap: 18px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
         }
-        .roulette-window {
-            width: 90%; max-width: 400px; height: 110px;
-            background: #151821; border: 1px solid var(--card-border);
-            border-radius: 14px; overflow: hidden; position: relative; display: flex; align-items: center;
-        }
-        .roulette-pointer {
-            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 2px; height: 100%; background: #ffffff; z-index: 10;
-        }
-        .roulette-track { display: flex; position: absolute; left: 0; transition: transform 4s cubic-bezier(0.15, 0.85, 0.35, 1); }
-        .roulette-item {
-            min-width: 130px; height: 85px; background: #202430; margin: 0 6px; border-radius: 10px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .r-title { font-size: 12px; font-weight: 600; text-align: center; margin-bottom: 4px; }
-        .r-price { font-size: 11px; color: var(--accent); }
+        .modal-content h3 { font-size: 20px; font-weight: 800; color: #fff; }
+        .modal-content p { font-size: 15px; color: var(--text-muted); line-height: 1.4; }
+        .modal-content p b { color: #fff; }
     </style>
 </head>
 <body>
 
+    <!-- Переливающийся фон -->
+    <div class="bg-glow"></div>
+
+    <!-- Летающие белые частицы -->
+    <div class="particles" id="particles"></div>
+
     <div class="container">
-        <!-- Шапка -->
-        <div class="header">
-            <div class="logo">HUSTLE HUB</div>
-            <div class="balance-badge" onclick="topUpTestBalance()">
-                <span id="userBalanceVal">...</span> ⭐ <span style="font-size: 10px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">+ тест</span>
+        <!-- Header / Balance Bento -->
+        <div class="bento-card">
+            <div class="header-top">
+                <span class="brand">Hustle Hub</span>
+                <div class="balance-val" id="user-balance">0 ⭐</div>
             </div>
         </div>
 
-        <!-- Навигация по вкладкам -->
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('cases', this)">Кейсы</button>
-            <button class="tab-btn" onclick="switchTab('crash', this)">Краш</button>
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('cases')">Кейсы</button>
+            <button class="tab-btn" onclick="switchTab('crash')">Краш</button>
         </div>
 
-        <!-- ВКЛАДКА КЕЙСОВ -->
-        <div id="casesView" class="view-section active">
-            <div class="bento-card">
-                <div class="section-title">Призовой пул платформы</div>
-                <div style="font-size: 28px; font-weight: 700; color: var(--accent);" id="poolBalanceVal">... ⭐</div>
-            </div>
-
-            <div class="section-title">Доступные кейсы</div>
-            <div class="cases-grid" id="casesContainer">
-                <div style="color: var(--text-muted); text-align: center; padding: 20px;">Загрузка кассы...</div>
-            </div>
+        <!-- Pool Bento -->
+        <div class="bento-card pool-box">
+            <span class="pool-title">Пул выплат системы</span>
+            <span class="pool-val" id="payout-pool">0 ⭐</span>
         </div>
 
-        <!-- ВКЛАДКА КРАША -->
-        <div id="crashView" class="view-section">
-            <div class="bento-card">
+        <!-- CASES SECTION -->
+        <div id="cases-section" class="section active">
+            <div id="cases-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+        </div>
+
+        <!-- CRASH SECTION -->
+        <div id="crash-section" class="section">
+            <div class="bento-card" style="display: flex; flex-direction: column; gap: 16px;">
                 <div class="crash-screen">
-                    <div class="crash-multiplier" id="crashMultiplierView">1.00x</div>
-                    <div class="crash-status" id="crashStatusView">Ожидание ставки</div>
+                    <span class="crash-mult" id="crash-display">1.00x</span>
+                    <span class="crash-status" id="crash-status">Готов к запуску</span>
                 </div>
-
-                <div style="margin-top: 15px;" class="input-group">
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
-                        <span>Сумма ставки</span>
-                        <span>Целевой множитель</span>
-                    </div>
-                    <div class="input-row">
-                        <input type="number" id="crashBetInput" value="50">
-                        <input type="number" id="crashTargetInput" value="2.00" step="0.1">
-                    </div>
-                    <div style="display: flex; gap: 6px;">
-                        <button class="preset-btn" onclick="addCrashBet(50)">+50</button>
-                        <button class="preset-btn" onclick="addCrashBet(100)">+100</button>
-                        <button class="preset-btn" onclick="addCrashBet(500)">+500</button>
-                    </div>
-                    <button class="action-btn" style="width: 100%; margin-top: 5px; padding: 14px;" onclick="startCrashGame()">Запустить ракету</button>
+                <div class="input-group">
+                    <label>Сумма ставки (⭐)</label>
+                    <input type="number" id="crash-bet" value="50" min="1">
                 </div>
+                <div class="input-group">
+                    <label>Целевой множитель (X)</label>
+                    <input type="number" step="0.1" id="crash-target" value="2.0" min="1.1">
+                </div>
+                <button class="action-btn" style="width: 100%; padding: 14px;" onclick="playCrash()">Запустить ракету</button>
             </div>
         </div>
     </div>
 
-    <!-- Модалка рулетки кейсов -->
-    <div class="modal" id="rouletteModal">
-        <div class="roulette-window">
-            <div class="roulette-pointer"></div>
-            <div class="roulette-track" id="rouletteTrack"></div>
+    <!-- Modal -->
+    <div class="modal" id="result-modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="modal-title">Результат</h3>
+            <p id="modal-text">Вы выиграли...</p>
+            <button class="action-btn" onclick="closeModal()">Понятно</button>
         </div>
-        <div style="margin-top: 20px; font-size: 16px; font-weight: 700;" id="rouletteResultText">Открытие кейса...</div>
-        <button class="action-btn" style="margin-top: 20px; display: none;" id="closeRouletteBtn" onclick="closeRouletteModal()">Забрать в инвентарь</button>
     </div>
 
     <script>
+        // Генерация летающих белых частиц
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 25; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 3 + 1;
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+            p.style.left = `${Math.random() * 100}vw`;
+            p.style.animationDuration = `${Math.random() * 8 + 6}s`;
+            p.style.animationDelay = `${Math.random() * 5}s`;
+            particlesContainer.appendChild(p);
+        }
+
         const tg = window.Telegram.WebApp;
         tg.expand();
-
         const userId = tg.initDataUnsafe?.user?.id || 12345;
-        let casesData = [];
 
-        // Инициализация данных
-        function loadData() {
-            fetch(`/api/user/${userId}`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('userBalanceVal').innerText = data.balance;
-                });
+        let userBalance = 0;
 
-            fetch('/api/cases')
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('poolBalanceVal').innerText = data.payout_pool + ' ⭐';
-                    casesData = data.cases;
-                    const container = document.getElementById('casesContainer');
-                    container.innerHTML = '';
-                    
-                    casesData.forEach(c => {
-                        container.innerHTML += `
-                            <div class="case-card">
-                                <div class="case-info">
-                                    <h3>${c.name}</h3>
-                                    <p>Стоимость: ${c.price} ⭐</p>
-                                </div>
-                                <button class="action-btn" onclick="openCase(${c.id})">Открыть</button>
+        async function loadData() {
+            try {
+                const res = await fetch(`/api/cases`);
+                const data = await res.json();
+                document.getElementById('payout-pool').innerText = data.payout_pool + ' ⭐';
+                
+                const casesContainer = document.getElementById('cases-list');
+                casesContainer.innerHTML = '';
+                data.cases.forEach(c => {
+                    casesContainer.innerHTML += `
+                        <div class="case-item">
+                            <div class="case-info">
+                                <h3>${c.name}</h3>
+                                <span class="case-price">Стоимость: ${c.price} ⭐</span>
                             </div>
-                        `;
-                    });
+                            <button class="action-btn" onclick="spinCase('${c.id}')">Открыть</button>
+                        </div>
+                    `;
                 });
+
+                const userRes = await fetch(`/api/user/${userId}`);
+                const userData = await userRes.json();
+                userBalance = userData.balance;
+                document.getElementById('user-balance').innerText = userBalance + ' ⭐';
+            } catch (e) {
+                console.error("Ошибка загрузки", e);
+            }
+        }
+
+        async function spinCase(caseType) {
+            try {
+                // Если баланса нет или мало, при открытии кейса вызываем инвойс/пополнение через звезды Телеграма или проверяем баланс
+                const res = await fetch('/api/spin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, case_type: caseType })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    userBalance = data.new_balance;
+                    document.getElementById('user-balance').innerText = userBalance + ' ⭐';
+                    showModal("Кейс открыт!", data.message);
+                    loadData();
+                } else {
+                    showModal("Внимание", data.message || "Недостаточно звезд на балансе");
+                }
+            } catch (e) {
+                showModal("Ошибка", "Недостаточно звезд на балансе. Пополните счет через бота.");
+            }
+        }
+
+        async function playCrash() {
+            const bet = parseInt(document.getElementById('crash-bet').value);
+            const target = parseFloat(document.getElementById('crash-target').value);
+
+            try {
+                const res = await fetch('/api/crash/play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, bet: bet, target_multiplier: target })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    userBalance = data.new_balance;
+                    document.getElementById('user-balance').innerText = userBalance + ' ⭐';
+                    document.getElementById('crash-display').innerText = data.crashed_at + 'x';
+                    
+                    if (data.won) {
+                        showModal("Победа в Краше! 🚀", `Ракета долетела до ${data.crashed_at}x!<br>Выигрыш: <b>+${data.payout} ⭐</b>`);
+                    } else {
+                        showModal("Краш! 💥", `Ракета упала на ${data.crashed_at}x (цель была ${target}x). Ставка сгорела.`);
+                    }
+                    loadData();
+                }
+            } catch (e) {
+                showModal("Ошибка", "Недостаточно средств для ставки");
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            if (tab === 'cases') {
+                document.querySelector('.nav-tabs button:nth-child(1)').classList.add('active');
+                document.getElementById('cases-section').classList.add('active');
+            } else {
+                document.querySelector('.nav-tabs button:nth-child(2)').classList.add('active');
+                document.getElementById('crash-section').classList.add('active');
+            }
+        }
+
+        function showModal(title, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerHTML = text;
+            document.getElementById('result-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').style.display = 'none';
         }
 
         loadData();
-
-        // Тестовое пополнение для проверки
-        function topUpTestBalance() {
-            fetch('/api/user/topup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, amount: 500 })
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('userBalanceVal').innerText = data.balance;
-                tg.HapticFeedback.notificationOccurred('success');
-            });
-        }
-
-        // Переключение вкладок
-        function switchTab(tabName, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(tabName + 'View').classList.add('active');
-        }
-
-        // --- ЛОГИКА ОТКРЫТИЯ КЕЙСА ---
-        function openCase(caseId) {
-            const caseItem = casesData.find(c => c.id === caseId);
-            if (!caseItem) return;
-
-            const modal = document.getElementById('rouletteModal');
-            const track = document.getElementById('rouletteTrack');
-            const resultText = document.getElementById('rouletteResultText');
-            const closeBtn = document.getElementById('closeRouletteBtn');
-
-            modal.style.display = 'flex';
-            resultText.innerText = 'Вращение барабана...';
-            closeBtn.style.display = 'none';
-            track.style.transition = 'none';
-            track.style.transform = 'translateX(0px)';
-
-            // Запрос на бэкенд для определения выигрыша
-            fetch('/api/spin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, case_id: caseId })
-            })
-            .then(res => {
-                if (!res.ok) throw new Error('Недостаточно средств');
-                return res.json();
-            })
-            .then(data => {
-                document.getElementById('userBalanceVal').innerText = data.new_balance;
-                
-                // Рендерим ленту рулетки с выигрышем на 30 позиции
-                let itemsHTML = '';
-                const prizes = caseItem.prizes;
-                for (let i = 0; i < 40; i++) {
-                    let p = (i === 30) ? [data.prize, data.prize_cost] : prizes[Math.floor(Math.random() * prizes.length)];
-                    itemsHTML += `
-                        <div class="roulette-item">
-                            <div class="r-title">${p[0]}</div>
-                            <div class="r-price">${p[1]} ⭐</div>
-                        </div>
-                    `;
-                }
-                track.innerHTML = itemsHTML;
-
-                setTimeout(() => {
-                    tg.HapticFeedback.impactOccurred('medium');
-                    track.style.transition = 'transform 4s cubic-bezier(0.15, 0.85, 0.35, 1)';
-                    track.style.transform = `translateX(-${30 * 142 - 142}px)`;
-                }, 50);
-
-                setTimeout(() => {
-                    tg.HapticFeedback.notificationOccurred('success');
-                    resultText.innerText = `Вы выиграли: ${data.prize}!`;
-                    closeBtn.style.display = 'block';
-                    loadData();
-                }, 4100);
-
-            })
-            .catch(err => {
-                modal.style.display = 'none';
-                alert('Ошибка: ' + err.message);
-            });
-        }
-
-        function closeRouletteModal() {
-            document.getElementById('rouletteModal').style.display = 'none';
-        }
-
-        // --- ЛОГИКА КРАША ---
-        function addCrashBet(amount) {
-            const input = document.getElementById('crashBetInput');
-            input.value = parseInt(input.value || 0) + amount;
-        }
-
-        function startCrashGame() {
-            const bet = parseInt(document.getElementById('crashBetInput').value);
-            const target = parseFloat(document.getElementById('crashTargetInput').value);
-            const multiplierView = document.getElementById('crashMultiplierView');
-            const statusView = document.getElementById('crashStatusView');
-
-            if (!bet || bet <= 0) {
-                alert('Введите ставку');
-                return;
-            }
-
-            statusView.innerText = "Ракеты взлетает...";
-            multiplierView.innerText = "1.00x";
-
-            fetch('/api/crash/play', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, bet: bet, target_multiplier: target })
-            })
-            .then(res => {
-                if (!res.ok) throw new Error('Ошибка ставки');
-                return res.json();
-            })
-            .then(data => {
-                document.getElementById('userBalanceVal').innerText = data.new_balance;
-                
-                let current = 1.00;
-                let interval = setInterval(() => {
-                    current += 0.04;
-                    if (current >= data.crashed_at || current >= target) {
-                        clearInterval(interval);
-                        if (data.won) {
-                            multiplierView.innerText = data.crashed_at.toFixed(2) + 'x';
-                            statusView.innerText = `Успешно! Выигрыш: ${data.payout} ⭐`;
-                            tg.HapticFeedback.notificationOccurred('success');
-                        } else {
-                            multiplierView.innerText = data.crashed_at.toFixed(2) + 'x';
-                            statusView.innerText = "КРАШ!";
-                            tg.HapticFeedback.notificationOccurred('error');
-                        }
-                        loadData();
-                    } else {
-                        multiplierView.innerText = current.toFixed(2) + 'x';
-                    }
-                }, 40);
-            })
-            .catch(err => {
-                statusView.innerText = "Недостаточно средств";
-            });
-        }
     </script>
 </body>
 </html>
