@@ -19,7 +19,7 @@ app.add_middleware(
 )
 
 BOT_TOKEN = "8840874512:AAHcjdgyFj5l6J-_oYk2PL_CafNfI6oQXB4"
-ADMIN_TELEGRAM_ID = 8510236481  # Твой реальный Telegram ID для уведомлений
+ADMIN_TELEGRAM_ID = 8510236481  # Твой Telegram ID
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -56,7 +56,7 @@ def init_db():
 
 init_db()
 
-# Каталоги кейсов
+# Каталог кейсов
 CASES = [
     {
         "id": "default",
@@ -221,9 +221,13 @@ async def spin_case(req: SpinRequest):
     stats_row = cursor.fetchone()
     payout_pool = stats_row[0] if stats_row else 0
 
-    safe_gifts = [g for g in case["gifts"] if req.is_demo or g["price"] <= (payout_pool + case["price"])]
+    # Честный расчет: пул + 40% от текущего кейса
+    pool_contribution = case["price"] * 0.40
+    max_allowed_prize = payout_pool + pool_contribution
+
+    safe_gifts = [g for g in case["gifts"] if req.is_demo or g["price"] <= max_allowed_prize]
     if not safe_gifts:
-        safe_gifts = [case["gifts"][0]]
+        safe_gifts = [min(case["gifts"], key=lambda x: x["price"])]
 
     won_gift = random.choice(safe_gifts)
 
@@ -242,4 +246,15 @@ async def spin_case(req: SpinRequest):
     new_balance = cursor.fetchone()[0]
     conn.close()
 
-    return {"won_gift": won_gift, "new_balance": new_balance}
+    # Генерация точной ленты рулетки для фронтенда
+    tape = [random.choice(case["gifts"]) for _ in range(35)]
+    winner_index = 25  # Точная позиция выигрыша в массиве
+    tape[winner_index] = won_gift
+    tape.extend([random.choice(case["gifts"]) for _ in range(5)])
+
+    return {
+        "won_gift": won_gift, 
+        "new_balance": new_balance,
+        "roulette_tape": tape,
+        "winner_index": winner_index
+    }
