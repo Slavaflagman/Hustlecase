@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from aiogram import Bot
+import uvicorn
 
 app = FastAPI(title="NFT case API")
 
@@ -126,6 +127,11 @@ class SpinRequest(BaseModel):
     user_id: int
     case_type: str = "default"
 
+class CrashPlayRequest(BaseModel):
+    user_id: int
+    bet: int
+    target_multiplier: float
+
 @app.get("/api/cases")
 async def get_cases():
     conn = sqlite3.connect("database.db")
@@ -241,6 +247,57 @@ async def spin_case(req: SpinRequest):
         "message": f"Поздравляем! Вы выбили {won_gift['name']}!"
     }
 
+@app.post("/api/crash/play")
+async def play_crash(data: CrashPlayRequest):
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT balance FROM users WHERE user_id = ?", (data.user_id,))
+    user = cursor.fetchone()
+    user_balance = user[0] if user else 0.0
+    
+    if user_balance < data.bet or data.bet <= 0:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Недостаточно средств")
+        
+    new_balance = user_balance - data.bet
+    cursor.execute("UPDATE users SET balance = ? WHERE user_id = ?", (new_balance, data.user_id))
+    
+    pool_cut = data.bet * 0.40
+    cursor.execute("UPDATE stats SET payout_pool = payout_pool + ? WHERE id = 1", (pool_cut,))
+    
+    crash_multiplier = round(max(1.00, 0.93 / (1.0 - random.random())), 2)
+    
+    won = data.target_multiplier <= crash_multiplier
+    payout = 0
+    
+    if won:
+        payout = int(data.bet * data.target_multiplier)
+        cursor.execute("SELECT payout_pool FROM stats WHERE id = 1")
+        current_pool = cursor.fetchone()[0]
+        
+        net_payout = payout - data.bet
+        if net_payout <= current_pool:
+            if net_payout > 0:
+                cursor.execute("UPDATE stats SET payout_pool = payout_pool - ? WHERE id = 1", (net_payout,))
+            new_balance += payout
+            cursor.execute("UPDATE users SET balance = ? WHERE user_id = ?", (new_balance, data.user_id))
+        else:
+            won = False
+            payout = 0
+            crash_multiplier = max(1.01, round(data.target_multiplier - 0.05, 2))
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "success": True,
+        "crashed_at": crash_multiplier,
+        "won": won,
+        "payout": payout,
+        "new_balance": new_balance
+    }
+
 @app.get("/api/stats")
 async def get_stats():
     conn = sqlite3.connect("database.db")
@@ -255,3 +312,7 @@ async def get_stats():
     }
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run("server:app", host="0.0.0.0", port=port)
