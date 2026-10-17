@@ -4,6 +4,7 @@ import random
 import asyncio
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from aiogram import Bot, Dispatcher, types
@@ -130,6 +131,13 @@ class SpinRequest(BaseModel):
     case_type: str
     is_demo: bool = False
 
+@app.get("/", response_class=HTMLResponse)
+async def serve_frontend():
+    if os.path.exists("index.html"):
+        with open("index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    return "<h1>index.html not found in root directory</h1>"
+
 @app.get("/api/cases")
 async def get_cases():
     return {"cases": CASES_CONFIG}
@@ -219,7 +227,6 @@ async def spin_case(req: SpinRequest):
         "message": f"Поздравляем! Вы выиграли {won_gift['name']}!"
     }
 
-# Обработчик команды /start для Telegram-бота
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     conn = sqlite3.connect("database.db")
@@ -240,7 +247,6 @@ async def cmd_start(message: types.Message):
         reply_markup=keyboard
     )
 
-# Асинхронный запуск бота в фоновом режиме вместе с FastAPI
 async def start_telegram_bot():
     try:
         await dp.start_polling(bot)
