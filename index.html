@@ -2,387 +2,353 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hustle NFT Case & Crash</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Hustle Case</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg-color: #050508;
-            --card-bg: rgba(15, 17, 23, 0.65);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-border-hover: rgba(255, 255, 255, 0.2);
-            --text-main: #ffffff;
-            --text-muted: #8c909d;
-            --accent: #ffffff;
-            --accent-glow: rgba(255, 255, 255, 0.15);
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: #0b0b0e;
+            color: #ffffff;
             padding: 16px;
         }
 
-        /* --- ПЕРЕЛИВАЮЩИЙСЯ ФОН И ЧАСТИЦЫ --- */
-        .bg-glow {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: -2;
-            background: radial-gradient(circle at 20% 20%, rgba(40, 40, 50, 0.3) 0%, transparent 40%),
-                        radial-gradient(circle at 80% 80%, rgba(20, 20, 25, 0.4) 0%, transparent 50%);
-            animation: bgShift 12s ease-in-out infinite alternate;
-        }
-
-        @keyframes bgShift {
-            0% { transform: scale(1) translate(0, 0); }
-            50% { transform: scale(1.05) translate(-10px, 15px); }
-            100% { transform: scale(1) translate(10px, -10px); }
-        }
-
-        /* Мелкие летающие белые частицы */
-        .particles {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            overflow: hidden;
-        }
-        .particle {
-            position: absolute;
-            background: #ffffff;
-            border-radius: 50%;
-            opacity: 0.3;
-            animation: floatParticle linear infinite;
-        }
-        @keyframes floatParticle {
-            0% { transform: translateY(105vh) translateX(0); opacity: 0; }
-            20% { opacity: 0.5; }
-            80% { opacity: 0.5; }
-            100% { transform: translateY(-5vh) translateX(30px); opacity: 0; }
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            z-index: 1;
-            padding-bottom: 40px;
-        }
-
-        /* Header / Bento Card */
-        .bento-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 20px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transition: border-color 0.3s;
-        }
-        .bento-card:hover {
-            border-color: var(--card-border-hover);
-        }
-
-        .header-top {
+        .header {
+            background: #141419;
+            border: 1px solid #22222a;
+            border-radius: 16px;
+            padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-        .brand {
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-        .balance-val {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            margin-bottom: 16px;
         }
 
-        /* Navigation Tabs */
-        .nav-tabs {
+        .header h2 {
+            font-size: 16px;
+            letter-spacing: 1px;
+            color: #8e8e93;
+        }
+
+        .balance {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
             display: flex;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 4px;
+            align-items: center;
             gap: 4px;
         }
+
+        .nav-tabs {
+            display: flex;
+            background: #141419;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+
         .tab-btn {
             flex: 1;
+            padding: 12px;
             background: transparent;
             border: none;
-            color: var(--text-muted);
-            padding: 12px;
-            font-weight: 600;
-            font-size: 14px;
+            color: #8e8e93;
+            font-weight: bold;
+            font-size: 15px;
             border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: 0.2s;
         }
+
         .tab-btn.active {
             background: #ffffff;
             color: #000000;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
         }
 
-        /* Pool Box */
-        .pool-box {
+        .pool-card {
+            background: #141419;
+            border: 1px solid #22222a;
+            border-radius: 16px;
+            padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
-            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 16px;
+            color: #8e8e93;
+            font-size: 14px;
         }
-        .pool-title { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-        .pool-val { font-size: 18px; font-weight: 700; color: #fff; }
 
-        /* Sections */
-        .section { display: none; flex-direction: column; gap: 12px; }
-        .section.active { display: flex; }
+        .case-card {
+            background: #141419;
+            border: 1px solid #22222a;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: border-color 0.2s;
+        }
 
-        /* Case Item Card */
-        .case-item {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 18px;
-            padding: 18px;
+        .case-card:hover {
+            border-color: #33333f;
+        }
+
+        .case-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(15px);
-            transition: transform 0.2s, border-color 0.3s;
+            cursor: pointer;
         }
-        .case-item:active { transform: scale(0.98); }
-        .case-item:hover { border-color: var(--card-border-hover); }
 
-        .case-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: #fff; }
-        .case-price { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-
-        .action-btn {
+        .open-btn {
             background: #ffffff;
             color: #000000;
             border: none;
             padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 14px;
+            font-weight: bold;
+            border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
         }
-        .action-btn:active { transform: scale(0.95); opacity: 0.8; }
 
-        /* Crash Section */
-        .crash-screen {
-            background: #020204;
-            border-radius: 14px;
-            height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid var(--card-border);
-            position: relative;
-            overflow: hidden;
+        .case-details {
+            display: none;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid #22222a;
         }
-        .crash-mult { font-size: 40px; font-weight: 900; color: #fff; letter-spacing: 1px; }
-        .crash-status { font-size: 12px; color: var(--text-muted); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .input-group { display: flex; flex-direction: column; gap: 6px; }
-        .input-group label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
-        .input-group input {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 14px;
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.2s;
+        .gifts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
         }
-        .input-group input:focus { border-color: rgba(255,255,255,0.4); }
 
-        /* Modal Result */
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: none;
-            justify-content: center; align-items: center; z-index: 100;
-            backdrop-filter: blur(10px);
-            padding: 20px;
-        }
-        .modal-content {
-            background: #0e1017;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 24px;
-            padding: 28px;
-            width: 100%;
-            max-width: 340px;
+        .gift-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 8px;
             text-align: center;
+            font-size: 11px;
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            gap: 4px;
         }
-        .modal-content h3 { font-size: 20px; font-weight: 800; color: #fff; }
-        .modal-content p { font-size: 15px; color: var(--text-muted); line-height: 1.4; }
-        .modal-content p b { color: #fff; }
+
+        .gift-badge small {
+            color: #ff007a;
+            font-weight: bold;
+        }
+
+        /* CRASH STYLES */
+        .crash-container {
+            background: #141419;
+            border: 1px solid #22222a;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .crash-display {
+            background: #0b0b0e;
+            border: 1px solid #22222a;
+            border-radius: 14px;
+            padding: 30px;
+            margin-bottom: 16px;
+        }
+
+        .crash-mult {
+            font-size: 38px;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .crash-status {
+            font-size: 12px;
+            color: #8e8e93;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            color: #8e8e93;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #0b0b0e;
+            border: 1px solid #22222a;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 14px;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Переливающийся фон -->
-    <div class="bg-glow"></div>
-
-    <!-- Летающие белые частицы -->
-    <div class="particles" id="particles"></div>
-
-    <div class="container">
-        <!-- Header / Balance Bento -->
-        <div class="bento-card">
-            <div class="header-top">
-                <span class="brand">Hustle Hub</span>
-                <div class="balance-val" id="user-balance">0 ⭐</div>
-            </div>
-        </div>
-
-        <!-- Navigation Tabs -->
-        <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('cases')">Кейсы</button>
-            <button class="tab-btn" onclick="switchTab('crash')">Краш</button>
-        </div>
-
-        <!-- Pool Bento -->
-        <div class="bento-card pool-box">
-            <span class="pool-title">Пул выплат системы</span>
-            <span class="pool-val" id="payout-pool">0 ⭐</span>
-        </div>
-
-        <!-- CASES SECTION -->
-        <div id="cases-section" class="section active">
-            <div id="cases-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
-        </div>
-
-        <!-- CRASH SECTION -->
-        <div id="crash-section" class="section">
-            <div class="bento-card" style="display: flex; flex-direction: column; gap: 16px;">
-                <div class="crash-screen">
-                    <span class="crash-mult" id="crash-display">1.00x</span>
-                    <span class="crash-status" id="crash-status">Готов к запуску</span>
-                </div>
-                <div class="input-group">
-                    <label>Сумма ставки (⭐)</label>
-                    <input type="number" id="crash-bet" value="50" min="1">
-                </div>
-                <div class="input-group">
-                    <label>Целевой множитель (X)</label>
-                    <input type="number" step="0.1" id="crash-target" value="2.0" min="1.1">
-                </div>
-                <button class="action-btn" style="width: 100%; padding: 14px;" onclick="playCrash()">Запустить ракету</button>
-            </div>
-        </div>
+    <div class="header">
+        <h2>HUSTLE HUB</h2>
+        <div class="balance" id="user-balance">0 ⭐</div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal" id="result-modal" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modal-title">Результат</h3>
-            <p id="modal-text">Вы выиграли...</p>
-            <button class="action-btn" onclick="closeModal()">Понятно</button>
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('cases')">Кейсы</button>
+        <button class="tab-btn" onclick="switchTab('crash')">Краш</button>
+    </div>
+
+    <div id="tab-cases">
+        <div class="pool-card">
+            <span>Пул выплат системы</span>
+            <strong style="color: #fff;" id="payout-pool">0 ⭐</strong>
+        </div>
+        <div id="cases-list"></div>
+    </div>
+
+    <div id="tab-crash" style="display: none;">
+        <div class="crash-container">
+            <div class="crash-display">
+                <div class="crash-mult" id="crash-mult">1.00x</div>
+                <div class="crash-status" id="crash-status">ГОТОВ К ЗАПУСКУ</div>
+            </div>
+
+            <div class="input-group">
+                <label>Сумма ставки (⭐)</label>
+                <input type="number" id="crash-bet" value="50">
+            </div>
+
+            <div class="input-group">
+                <label>Целевой множитель (X)</label>
+                <input type="number" id="crash-target" value="2.0" step="0.1">
+            </div>
+
+            <button class="action-btn" onclick="playCrash()">Запустить ракету</button>
         </div>
     </div>
 
     <script>
-        // Генерация летающих белых частиц
-        const particlesContainer = document.getElementById('particles');
-        for (let i = 0; i < 25; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            const size = Math.random() * 3 + 1;
-            p.style.width = `${size}px`;
-            p.style.height = `${size}px`;
-            p.style.left = `${Math.random() * 100}vw`;
-            p.style.animationDuration = `${Math.random() * 8 + 6}s`;
-            p.style.animationDelay = `${Math.random() * 5}s`;
-            particlesContainer.appendChild(p);
-        }
-
         const tg = window.Telegram.WebApp;
         tg.expand();
-        const userId = tg.initDataUnsafe?.user?.id || 12345;
+        const userId = tg.initDataUnsafe?.user?.id || 12345678;
 
-        let userBalance = 0;
-
-        async function loadData() {
+        async function updateBalance() {
             try {
-                const res = await fetch(`/api/cases`);
+                const res = await fetch(`/api/user/${userId}`);
                 const data = await res.json();
-                document.getElementById('payout-pool').innerText = data.payout_pool + ' ⭐';
-                
-                const casesContainer = document.getElementById('cases-list');
-                casesContainer.innerHTML = '';
+                document.getElementById('user-balance').innerText = `${data.balance} ⭐`;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadCases() {
+            try {
+                const res = await fetch('/api/cases');
+                const data = await res.json();
+                document.getElementById('payout-pool').innerText = `${data.payout_pool} ⭐`;
+
+                const casesList = document.getElementById('cases-list');
+                casesList.innerHTML = '';
+
                 data.cases.forEach(c => {
-                    casesContainer.innerHTML += `
-                        <div class="case-item">
-                            <div class="case-info">
-                                <h3>${c.name}</h3>
-                                <span class="case-price">Стоимость: ${c.price} ⭐</span>
+                    const card = document.createElement('div');
+                    card.className = 'case-card';
+
+                    const giftsHtml = c.gifts.map(g => `
+                        <div class="gift-badge">
+                            <span>${g.name}</span>
+                            <small>${g.price} ⭐</small>
+                        </div>
+                    `).join('');
+
+                    card.innerHTML = `
+                        <div class="case-header" onclick="toggleDetails('${c.id}')">
+                            <div>
+                                <h3 style="margin: 0; font-size: 16px;">${c.name}</h3>
+                                <p style="margin: 4px 0 0; color: #8e8e93; font-size: 13px;">Стоимость: ${c.price} ⭐</p>
                             </div>
-                            <button class="action-btn" onclick="spinCase('${c.id}')">Открыть</button>
+                            <button class="open-btn" onclick="event.stopPropagation(); spinCase('${c.id}')">Открыть</button>
+                        </div>
+                        <div id="details-${c.id}" class="case-details">
+                            <p style="font-size: 12px; color: #8e8e93; margin-bottom: 8px;">Содержимое кейса (нажмите чтобы скрыть):</p>
+                            <div class="gifts-grid">
+                                ${giftsHtml}
+                            </div>
                         </div>
                     `;
+                    casesList.appendChild(card);
                 });
-
-                const userRes = await fetch(`/api/user/${userId}`);
-                const userData = await userRes.json();
-                userBalance = userData.balance;
-                document.getElementById('user-balance').innerText = userBalance + ' ⭐';
             } catch (e) {
-                console.error("Ошибка загрузки", e);
+                console.error(e);
+            }
+        }
+
+        function toggleDetails(id) {
+            const el = document.getElementById(`details-${id}`);
+            if (el) {
+                el.style.display = el.style.display === 'block' ? 'none' : 'block';
             }
         }
 
         async function spinCase(caseType) {
             try {
-                // Если баланса нет или мало, при открытии кейса вызываем инвойс/пополнение через звезды Телеграма или проверяем баланс
                 const res = await fetch('/api/spin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user_id: userId, case_type: caseType })
                 });
                 const data = await res.json();
-                if (data.status === 'success') {
-                    userBalance = data.new_balance;
-                    document.getElementById('user-balance').innerText = userBalance + ' ⭐';
-                    showModal("Кейс открыт!", data.message);
-                    loadData();
+
+                if (res.ok && data.status === 'success') {
+                    alert(`🎉 Вы выбили: ${data.won_gift.name}! Подарок отправлен вам в чат.`);
                 } else {
-                    showModal("Внимание", data.message || "Недостаточно звезд на балансе");
+                    alert(data.message || data.detail || "Ошибка при открытии");
                 }
+                updateBalance();
+                loadCases();
             } catch (e) {
-                showModal("Ошибка", "Недостаточно звезд на балансе. Пополните счет через бота.");
+                alert("Ошибка сети");
             }
         }
 
         async function playCrash() {
             const bet = parseInt(document.getElementById('crash-bet').value);
             const target = parseFloat(document.getElementById('crash-target').value);
+
+            if (!bet || !target) return alert("Введите ставку и множитель");
+
+            const statusEl = document.getElementById('crash-status');
+            const multEl = document.getElementById('crash-mult');
+            statusEl.innerText = "РАКЕТА ЛЕТИТ...";
+            statusEl.style.color = "#ffb700";
 
             try {
                 const res = await fetch('/api/crash/play', {
@@ -391,47 +357,45 @@
                     body: JSON.stringify({ user_id: userId, bet: bet, target_multiplier: target })
                 });
                 const data = await res.json();
-                if (data.success) {
-                    userBalance = data.new_balance;
-                    document.getElementById('user-balance').innerText = userBalance + ' ⭐';
-                    document.getElementById('crash-display').innerText = data.crashed_at + 'x';
-                    
-                    if (data.won) {
-                        showModal("Победа в Краше! 🚀", `Ракета долетела до ${data.crashed_at}x!<br>Выигрыш: <b>+${data.payout} ⭐</b>`);
-                    } else {
-                        showModal("Краш! 💥", `Ракета упала на ${data.crashed_at}x (цель была ${target}x). Ставка сгорела.`);
-                    }
-                    loadData();
+
+                if (!res.ok) {
+                    statusEl.innerText = "ОШИБКА";
+                    statusEl.style.color = "#ff3b30";
+                    return alert(data.detail || "Ошибка");
                 }
+
+                multEl.innerText = `${data.crashed_at.toFixed(2)}x`;
+
+                if (data.won) {
+                    statusEl.innerText = `ПОБЕДА! +${data.payout} ⭐`;
+                    statusEl.style.color = "#34c759";
+                } else {
+                    statusEl.innerText = "КРАШ! СТАВКА СГОРЕЛА";
+                    statusEl.style.color = "#ff3b30";
+                }
+
+                updateBalance();
+                loadCases();
             } catch (e) {
-                showModal("Ошибка", "Недостаточно средств для ставки");
+                statusEl.innerText = "ОШИБКА СЕТИ";
             }
         }
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            
             if (tab === 'cases') {
-                document.querySelector('.nav-tabs button:nth-child(1)').classList.add('active');
-                document.getElementById('cases-section').classList.add('active');
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('tab-cases').style.display = 'block';
+                document.getElementById('tab-crash').style.display = 'none';
             } else {
-                document.querySelector('.nav-tabs button:nth-child(2)').classList.add('active');
-                document.getElementById('crash-section').classList.add('active');
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('tab-cases').style.display = 'none';
+                document.getElementById('tab-crash').style.display = 'block';
             }
         }
 
-        function showModal(title, text) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-text').innerHTML = text;
-            document.getElementById('result-modal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('result-modal').style.display = 'none';
-        }
-
-        loadData();
+        updateBalance();
+        loadCases();
     </script>
 </body>
 </html>
