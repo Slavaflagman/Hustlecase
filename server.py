@@ -18,7 +18,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
+# Твой реальный токен от BotFather
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8840874512:AAHcjdgyFj5l6J-_oYk2PL_CafNfI6oQXB4")
 bot = Bot(token=BOT_TOKEN)
 
 # --- КАТАЛОГИ ВСЕХ 5 КЕЙСОВ БЕЗ КАРТИНОК ---
