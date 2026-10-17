@@ -201,7 +201,7 @@
             font-weight: 600;
         }
 
-        /* Нижняя навигация */
+        /* Нижнее меню */
         .bottom-nav {
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -611,8 +611,12 @@
         }
 
         function openPreview(caseId) {
-            selectedCase = casesData.find(c => c.id === caseId);
-            if (!selectedCase) return;
+            // Исправленное нестрогое сравнение (==), заставляющее клики работать идеально
+            selectedCase = casesData.find(c => c.id == caseId);
+            if (!selectedCase) {
+                console.error("Кейс не найден:", caseId);
+                return;
+            }
 
             document.getElementById('preview-case-title').innerText = selectedCase.name;
             document.getElementById('spin-submit-btn').innerText = `Крутить за ${selectedCase.price} ⭐`;
@@ -621,7 +625,8 @@
             const grid = document.getElementById('preview-prizes-grid');
             grid.innerHTML = '';
 
-            selectedCase.items.forEach(gift => {
+            const itemsList = selectedCase.items || selectedCase.gifts || [];
+            itemsList.forEach(gift => {
                 grid.innerHTML += `
                     <div class="prize-item">
                         <span style="font-size: 20px;">🎁</span>
