@@ -1,11 +1,11 @@
 import os
 import sqlite3
+import random
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from aiogram import Bot
 
-# Инициализация FastAPI
 app = FastAPI()
 
 app.add_middleware(
@@ -19,7 +19,16 @@ app.add_middleware(
 BOT_TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
 bot = Bot(token=BOT_TOKEN)
 
-# Инициализация базы данных
+# Список всех доступных NFT-подарков и их стоимость в Stars
+GIFTS_CATALOG = [
+    {"id": "gift_cheap_1", "name": "Star", "price": 15},
+    {"id": "gift_cheap_2", "name": "Heart", "price": 50},
+    {"id": "gift_medium_1", "name": "Bear", "price": 100},
+    {"id": "gift_medium_2", "name": "Trophy", "price": 350},
+    {"id": "gift_expensive_1", "name": "NFT Rocket", "price": 1000},
+    {"id": "gift_expensive_2", "name": "NFT Crown", "price": 3500},
+]
+
 def init_db():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -49,10 +58,9 @@ class DepositRequest(BaseModel):
     user_id: int
     amount: int
 
-class ClaimGiftRequest(BaseModel):
+class SpinRequest(BaseModel):
     user_id: int
-    gift_id: str
-    gift_price: int
+    case_price: int
 
 @app.post("/api/deposit")
 async def process_deposit(req: DepositRequest):
@@ -80,43 +88,54 @@ async def process_deposit(req: DepositRequest):
     conn.close()
     return {"status": "success", "added_balance": req.amount}
 
-@app.post("/api/claim_gift")
-async def claim_gift(req: ClaimGiftRequest):
-    """Автоматическая выдача подарка через Telegram Bot API"""
+@app.post("/api/spin")
+async def spin_case(req: SpinRequest):
+    """Прокрут кейса с динамическим подбором выигрыша под бюджет пула"""
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
+    # Списываем стоимость прокрута с баланса игрока (или проверяем оплату)
     cursor.execute("SELECT payout_pool FROM stats WHERE id = 1")
     current_pool = cursor.fetchone()[0]
 
-    # Проверка: хватает ли в пуле выплат (40%) звёзд на этот подарок
-    if current_pool < req.gift_price:
-        conn.close()
-        raise HTTPException(
-            status_code=400, 
-            detail="Пул выплат пока пополняется (валидация смарт-контракта TON). Попробуйте позже!"
-        )
+    # Фильтруем подарки: оставляем ТОЛЬКО ТЕ, на которые хватает денег в 40% пуле
+    allowed_gifts = [g for g in GIFTS_CATALOG if g["price"] <= current_pool]
 
-    # Автоматическая отправка подарка через Bot API
+    if not allowed_gifts:
+        # Если в пуле совсем нет денег даже на самый дешевый гифт
+        conn.close()
+        return {
+            "status": "no_pool",
+            "won_gift": None,
+            "message": "Пул выплат пополняется! Попробуйте зайти чуть позже."
+        }
+
+    # Случайным образом выбираем подарок из доступных по бюджету
+    won_gift = random.choice(allowed_gifts)
+
+    # Автоматически отправляем подарок победителю через Bot API
     try:
         await bot.send_gift(
             user_id=req.user_id,
-            gift_id=req.gift_id
+            gift_id=won_gift["id"]
         )
+        # Списываем стоимость выпавшего подарка из пула
+        cursor.execute("UPDATE stats SET payout_pool = payout_pool - ? WHERE id = 1", (won_gift["price"],))
+        conn.commit()
     except Exception as e:
         conn.close()
-        raise HTTPException(status_code=500, detail=f"Ошибка при отправке подарка: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Ошибка отправки подарка: {str(e)}")
 
-    # Списываем стоимость подарка из пула выплат
-    cursor.execute("UPDATE stats SET payout_pool = payout_pool - ? WHERE id = 1", (req.gift_price,))
-    conn.commit()
     conn.close()
-
-    return {"status": "success", "message": "Подарок успешно отправлен в личный профиль!"}
+    return {
+        "status": "success",
+        "won_gift": won_gift,
+        "message": f"Поздравляем! Вы выбили {won_gift['name']} за {won_gift['price']} Stars!"
+    }
 
 @app.get("/api/stats")
 async def get_stats():
-    """Просмотр кассы (только для админа)"""
+    """Просмотр кассы (только для владельца)"""
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
     cursor.execute("SELECT total_deposits, owner_profit, payout_pool FROM stats WHERE id = 1")
@@ -127,3 +146,4 @@ async def get_stats():
         "owner_profit_60": row[1],
         "payout_pool_40": row[2]
     }
+
