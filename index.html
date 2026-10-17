@@ -6,121 +6,165 @@
     <title>Hustle Case</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: #0d0d0d;
+            --card-border: #222222;
+            --text-main: #ffffff;
+            --text-secondary: #888888;
+            --accent: #ffffff;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+-webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         body {
-            background-color: #0f0f13;
-            color: #ffffff;
-            padding: 16px;
-            padding-bottom: 80px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 12px 16px 90px 16px;
+            overflow-x: hidden;
         }
-        header {
+
+        /* Космический фон (анимация точек) */
+        .space-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000000 100%);
+        }
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 0.9; transform: scale(1.2); }
+        }
+
+        /* Верхняя постоянная плашка пополнения */
+        .top-banner {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
-        h1 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .balance-badge {
-            background: #1a1a24;
-            padding: 6px 12px;
-            border-radius: 12px;
+        .balance-info {
             font-size: 14px;
             font-weight: 600;
-            color: #f39c12;
-            border: 1px solid #2a2a3b;
         }
-        .mode-toggle {
-            display: flex;
-            background: #1a1a24;
-            border-radius: 10px;
-            padding: 4px;
-            margin-bottom: 20px;
-            border: 1px solid #2a2a3b;
-        }
-        .mode-btn {
-            flex: 1;
-            background: none;
-            border: none;
-            color: #888;
-            padding: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .mode-btn.active {
-            background: #33334d;
-            color: #fff;
-        }
-        .cases-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-        .case-card {
-            background: #16161f;
-            border: 1px solid #252536;
-            border-radius: 16px;
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.2s;
-        }
-        .case-info h3 {
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-        .case-info p {
-            font-size: 13px;
-            color: #a0a0b0;
-        }
-        .case-actions {
-            display: flex;
-            gap: 8px;
-        }
-        .btn {
-            background: #f39c12;
+        .top-up-btn {
+            background: #fff;
             color: #000;
             border: none;
-            padding: 10px 14px;
+            padding: 8px 14px;
             border-radius: 10px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 13px;
             cursor: pointer;
         }
-        .btn-secondary {
-            background: #252536;
-            color: #fff;
+
+        /* Навигация по разделам (в нижней части или вкладки) */
+        .nav-tabs {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            background: #0a0a0a;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 50;
         }
-        /* Модальное окно */
+        .nav-tab {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .nav-tab.active {
+            color: var(--text-main);
+        }
+
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+
+        /* Раздел 1: Кейсы (Круглые рамки) */
+        .cases-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .case-circle-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .case-circle-card:hover {
+            border-color: #444;
+        }
+        .case-avatar {
+            width: 65px; height: 65px;
+            border-radius: 50%;
+            background: #161616;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .case-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .case-details p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Модалка кейса (Черно-белая) */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
             justify-content: center;
             align-items: flex-end;
-            z-index: 100;
         }
         .modal-content {
-            background: #16161f;
+            background: #0d0d0d;
             width: 100%;
-            max-height: 80vh;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            max-height: 85vh;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
             padding: 20px;
+            border-top: 1px solid var(--card-border);
             overflow-y: auto;
-            border-top: 1px solid #2a2a3b;
         }
         .modal-header {
             display: flex;
@@ -129,176 +173,413 @@
             margin-bottom: 16px;
         }
         .close-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 20px;
+            background: #222; border: none; color: #fff;
+            width: 32px; height: 32px; border-radius: 50%;
             cursor: pointer;
         }
-        .gifts-grid {
+        .prizes-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin-bottom: 20px;
         }
-        .gift-item {
-            background: #1f1f2e;
-            border: 1px solid #2d2d42;
+        .prize-box {
+            background: #141414;
+            border: 1px solid var(--card-border);
             border-radius: 12px;
-            padding: 10px;
+            padding: 12px 6px;
             text-align: center;
         }
-        .gift-item p {
-            font-size: 12px;
+        .prize-box .p-name {
+            font-size: 11px;
+            color: var(--text-main);
             margin-top: 6px;
-            color: #f39c12;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .prize-box .p-price {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .case-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            gap: 10px;
+        }
+        .main-spin-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        /* Рулетка */
+        .roulette-track-box {
+            position: relative;
+            height: 110px;
+            background: #111;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+        }
+        .roulette-pointer {
+            position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #fff; z-index: 5;
+        }
+        .roulette-track {
+            display: flex; gap: 8px; position: absolute;
+        }
+        .r-card {
+            min-width: 90px; height: 90px; background: #1a1a1a; border: 1px solid #333; border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #aaa;
+        }
+
+        /* Раздел 2: Рефералы и донат */
+        .card-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+        .card-box h3 { font-size: 15px; margin-bottom: 8px; }
+        .card-box p { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+
+        /* Раздел 3: Профиль */
+        .profile-header {
+            background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 16px;
+        }
+        .profile-header h2 { font-size: 22px; margin-top: 6px; }
+        .inventory-box {
+            background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; min-height: 120px; margin-bottom: 16px;
+        }
+        .faq-btn {
+            background: #141414; border: 1px solid var(--card-border); color: #fff; width: 100%; padding: 14px; border-radius: 14px; font-weight: 600; cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Hustle Case</h1>
-        <div class="balance-badge" id="user-balance">0 ⭐</div>
-    </header>
+    <div class="space-bg" id="space"></div>
 
-    <div class="mode-toggle">
-        <button class="mode-btn active" id="mode-real" onclick="setMode(false)">💰 Реальный режим</button>
-        <button class="mode-btn" id="mode-demo" onclick="setMode(true)">🎮 Демо-режим</button>
+    <!-- Постоянная плашка пополнения сверху -->
+    <div class="top-banner">
+        <div class="balance-info">Баланс: <span id="user-balance">0</span> ⭐</div>
+        <button class="top-up-btn" onclick="openTopUpModal()">Пополнить</button>
     </div>
 
-    <div class="cases-grid" id="cases-container">
-        <!-- Кейсы подгружаются динамически через JS -->
+    <!-- Раздел 1: Кейсы -->
+    <div class="section active" id="sec-cases">
+        <div class="cases-container" id="cases-list"></div>
     </div>
 
-    <!-- Модальное окно просмотра подарков и открытия -->
+    <!-- Раздел 2: Рефералы и Донат -->
+    <div class="section" id="sec-ref">
+        <div class="card-box">
+            <h3>Реферальная система</h3>
+            <p>Приглашай друзей и получай бонусы за их активность!</p>
+            <button class="top-up-btn" style="width: 100%;" onclick="copyRefLink()">Скопировать реферальную ссылку</button>
+        </div>
+        <div class="card-box">
+            <h3>Поддержка автора</h3>
+            <p>Поблагодарить разработчика за создание проекта.</p>
+            <button class="top-up-btn" style="width: 100%;" onclick="buyStarsPrompt(50)">Задонатить 50 ⭐</button>
+        </div>
+    </div>
+
+    <!-- Раздел 3: Профиль и Инвентарь -->
+    <div class="section" id="sec-profile">
+        <div class="profile-header">
+            <p style="color: var(--text-secondary); font-size: 13px;">Ваш баланс звезд</p>
+            <h2 id="profile-balance">0 ⭐</h2>
+        </div>
+        <div class="inventory-box">
+            <h3 style="font-size: 14px; margin-bottom: 10px;">Выигранные призы</h3>
+            <div id="inventory-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                <p style="color: var(--text-secondary); font-size: 12px; grid-column: span 3;">Пусто</p>
+            </div>
+        </div>
+        <button class="faq-btn" onclick="openFaqModal()">Об игре (FAQ и правила)</button>
+    </div>
+
+    <!-- Модалка кейса -->
     <div class="modal" id="case-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modal-case-title">Название кейса</h2>
-                <button class="close-btn" onclick="closeModal()">✕</button>
+                <h3 id="modal-title">Кейс</h3>
+                <button class="close-btn" onclick="closeModal('case-modal')">✕</button>
             </div>
-            <p style="font-size: 13px; color: #a0a0b0; margin-bottom: 12px;">Возможные призы в кейсе:</p>
-            <div class="gifts-grid" id="modal-gifts-grid">
-                <!-- Список подарков -->
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">Возможные призы:</p>
+            <div class="prizes-grid" id="modal-prizes"></div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #141414; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border);">
+                <span style="font-size: 13px;">Демо-режим (фри спины)</span>
+                <input type="checkbox" id="demo-toggle" style="width: 18px; height: 18px; accent-color: #fff;" onchange="updateSpinButtonText()">
             </div>
-            <button class="btn" style="width: 100%; padding: 14px; font-size: 15px;" id="modal-open-btn" onclick="spinCurrentCase()">Открыть кейс</button>
+
+            <button class="main-spin-btn" id="spin-main-btn" onclick="startSpin()">Крутить</button>
         </div>
+    </div>
+
+    <!-- Модалка рулетки -->
+    <div class="modal" id="roulette-modal">
+        <div class="modal-content" style="text-align: center;">
+            <h3 style="margin-bottom: 10px;">Открытие...</h3>
+            <div class="roulette-track-box">
+                <div class="roulette-pointer"></div>
+                <div class="roulette-track" id="roulette-track"></div>
+            </div>
+            <div id="spin-result-text" style="font-size: 15px; font-weight: 600; margin: 15px 0; min-height: 22px;"></div>
+            <button class="main-spin-btn" id="close-roulette-btn" style="display: none;" onclick="closeModal('roulette-modal')">Забрать</button>
+        </div>
+    </div>
+
+    <!-- Модалка пополнения -->
+    <div class="modal" id="topup-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Пополнение звезд</h3>
+                <button class="close-btn" onclick="closeModal('topup-modal')">✕</button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">Выберите количество для пополнения:</p>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px;">
+                <button class="top-up-btn" style="padding: 14px;" onclick="buyStarsPrompt(50)">50 ⭐</button>
+                <button class="top-up-btn" style="padding: 14px;" onclick="buyStarsPrompt(250)">250 ⭐</button>
+                <button class="top-up-btn" style="padding: 14px;" onclick="buyStarsPrompt(1000)">1000 ⭐</button>
+                <button class="top-up-btn" style="padding: 14px;" onclick="buyStarsPrompt(5000)">5000 ⭐</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка FAQ -->
+    <div class="modal" id="faq-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Об игре / Правила</h3>
+                <button class="close-btn" onclick="closeModal('faq-modal')">✕</button>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; display: flex; flex-direction: column; gap: 10px;">
+                <p><b>Это обман?</b> Нет, все розыгрыши и выпадения предметов честно рассчитываются на сервере.</p>
+                <p><b>Когда ждать выплаты/предметы?</b> Предметы моментально падают в ваш инвентарь в третьем разделе.</p>
+                <p><b>Правила:</b> Администрация не несет ответственности за утрату аккаунта. Играйте осознанно.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Нижняя навигация -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('cases', this)">Кейсы</button>
+        <button class="nav-tab" onclick="switchTab('ref', this)">Рефералы</button>
+        <button class="nav-tab" onclick="switchTab('profile', this)">Профиль</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-
-        let userId = tg.initDataUnsafe?.user?.id || 123456789; // Тестовый ID, если запуск не из Telegram
+        let userId = tg.initDataUnsafe?.user?.id || 123456789;
+        
         let userBalance = 0;
-        let isDemo = false;
-        let currentCaseId = null;
         let casesData = [];
+        let activeCase = null;
+
+        // Генерация фона космоса
+        const space = document.getElementById('space');
+        for(let i=0; i<40; i++) {
+            let s = document.createElement('div');
+            s.className = 'star';
+            s.style.width = Math.random() * 2 + 1 + 'px';
+            s.style.height = s.style.width;
+            s.style.top = Math.random() * 100 + '%';
+            s.style.left = Math.random() * 100 + '%';
+            s.style.animationDelay = Math.random() * 3 + 's';
+            space.appendChild(s);
+        }
 
         async function init() {
-            await loadUser();
+            await loadUserData();
             await loadCases();
         }
 
-        async function loadUser() {
+        async function loadUserData() {
             try {
-                let res = await fetch(`/api/deposit`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_id: userId, amount: 0 }) // Просто инициализация/проверка
-                });
-                // Или можно сделать отдельный запрос баланса, если настроен эндпоинт
-            } catch (e) {
-                console.log(e);
-            }
+                let res = await fetch(`/api/user/${userId}`);
+                let data = await res.json();
+                userBalance = data.balance;
+                document.getElementById('user-balance').innerText = userBalance;
+                document.getElementById('profile-balance').innerText = `${userBalance} ⭐`;
+                
+                let invList = document.getElementById('inventory-list');
+                if (data.inventory.length > 0) {
+                    invList.innerHTML = '';
+                    data.inventory.forEach(item => {
+                        invList.innerHTML += `<div class="prize-box"><div class="p-name">${item.name}</div><div class="p-price">${item.price} ⭐</div></div>`;
+                    });
+                }
+            } catch(e) { console.error(e); }
         }
 
         async function loadCases() {
-            let res = await fetch('/api/cases');
-            let data = await res.json();
-            casesData = data.cases;
-            renderCases();
+            try {
+                let res = await fetch('/api/cases');
+                let data = await res.json();
+                casesData = data.cases;
+                let container = document.getElementById('cases-list');
+                container.innerHTML = '';
+                casesData.forEach(c => {
+                    container.innerHTML += `
+                        <div class="case-circle-card" onclick="openCaseModal('${c.id}')">
+                            <div class="case-avatar">🎁</div>
+                            <div class="case-details">
+                                <h3>${c.name}</h3>
+                                <p>${c.price} ⭐</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch(e) { console.error(e); }
         }
 
-        function renderCases() {
-            const container = document.getElementById('cases-container');
-            container.innerHTML = '';
-            casesData.forEach(c => {
-                container.innerHTML += `
-                    <div class="case-card">
-                        <div class="case-info">
-                            <h3>${c.name}</h3>
-                            <p>${c.price} ⭐</p>
-                        </div>
-                        <div class="case-actions">
-                            <button class="btn btn-secondary" onclick="openCaseModal('${c.id}')">Содержимое</button>
-                            <button class="btn" onclick="quickSpin('${c.id}')">Открыть</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function setMode(demo) {
-            isDemo = demo;
-            document.getElementById('mode-real').classList.toggle('active', !demo);
-            document.getElementById('mode-demo').classList.toggle('active', demo);
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`sec-${tabId}`).classList.add('active');
+            el.classList.add('active');
+            if(tabId === 'profile') loadUserData();
         }
 
         function openCaseModal(caseId) {
-            currentCaseId = caseId;
-            let c = casesData.find(item => item.id === caseId);
-            if (!c) return;
+            activeCase = casesData.find(c => c.id === caseId);
+            if(!activeCase) return;
 
-            document.getElementById('modal-case-title').innerText = `${c.name} (${c.price} ⭐)`;
-            
-            let grid = document.getElementById('modal-gifts-grid');
+            document.getElementById('modal-title').innerText = activeCase.name;
+            let grid = document.getElementById('modal-prizes');
             grid.innerHTML = '';
-            c.gifts.forEach(g => {
-                grid.innerHTML += `
-                    <div class="gift-item">
-                        <div style="font-size: 24px;">🎁</div>
-                        <div style="font-size: 13px; font-weight: 500; margin-top: 4px;">${g.name}</div>
-                        <p>${g.price} ⭐</p>
-                    </div>
-                `;
+            activeCase.gifts.forEach(g => {
+                grid.innerHTML += `<div class="prize-box"><div class="p-name">${g.name}</div><div class="p-price">${g.price} ⭐</div></div>`;
             });
 
+            document.getElementById('demo-toggle').checked = false;
+            updateSpinButtonText();
             document.getElementById('case-modal').style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('case-modal').style.display = 'none';
+        function updateSpinButtonText() {
+            let isDemo = document.getElementById('demo-toggle').checked;
+            let btn = document.getElementById('spin-main-btn');
+            if(isDemo) {
+                btn.innerText = "Крутить бесплатно (Демо)";
+            } else {
+                btn.innerText = `Крутить за ${activeCase.price} ⭐`;
+            }
         }
 
-        async function quickSpin(caseId) {
-            currentCaseId = caseId;
-            spinCurrentCase();
-        }
+        async function startSpin() {
+            let isDemo = document.getElementById('demo-toggle').checked;
+            
+            if(!isDemo && userBalance < activeCase.price) {
+                alert("Недостаточно звезд на балансе!");
+                return;
+            }
 
-        async function spinCurrentCase() {
+            closeModal('case-modal');
+            document.getElementById('spin-result-text').innerText = '';
+            document.getElementById('close-roulette-btn').style.display = 'none';
+            document.getElementById('roulette-modal').style.display = 'flex';
+
+            let track = document.getElementById('roulette-track');
+            track.style.transition = 'none';
+            track.style.transform = 'translateX(0px)';
+
+            let html = '';
+            let pool = activeCase.gifts;
+            for(let i=0; i<35; i++) {
+                let g = pool[Math.floor(Math.random() * pool.length)];
+                html += `<div class="r-card"><span>🎁</span><p>${g.name}</p></div>`;
+            }
+            track.innerHTML = html;
+
             try {
                 let res = await fetch('/api/spin', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        user_id: userId,
-                        case_type: currentCaseId,
-                        is_demo: isDemo
-                    })
+                    body: JSON.stringify({ user_id: userId, case_id: activeCase.id, is_demo: isDemo })
                 });
                 let data = await res.json();
-                
-                if (res.ok) {
-                    alert(`${data.message}\nВыиграл: ${data.won_gift.name} (${data.won_gift.price} ⭐)`);
-                    closeModal();
-                } else {
-                    alert(data.detail || "Ошибка открытия кейса");
+                if(!res.ok) {
+                    closeModal('roulette-modal');
+                    alert(data.detail);
+                    return;
                 }
-            } catch (e) {
-                alert("Ошибка соединения с сервером");
+
+                userBalance = data.new_balance;
+                document.getElementById('user-balance').innerText = userBalance;
+
+                setTimeout(() => {
+                    let offset = (25 * 98) - 110;
+                    track.style.transition = 'transform 3.5s cubic-bezier(0.15, 0.85, 0.15, 1)';
+                    track.style.transform = `translateX(-${offset}px)`;
+                }, 50);
+
+                setTimeout(() => {
+                    document.getElementById('spin-result-text').innerText = `Вы выиграли: ${data.won_gift.name} (${data.won_gift.price} ⭐)!`;
+                    document.getElementById('close-roulette-btn').style.display = 'block';
+                    loadUserData();
+                }, 3600);
+
+            } catch(e) {
+                closeModal('roulette-modal');
+                alert("Ошибка сервера");
             }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function openTopUpModal() {
+            document.getElementById('topup-modal').style.display = 'flex';
+        }
+
+        function openFaqModal() {
+            document.getElementById('faq-modal').style.display = 'flex';
+        }
+
+        async function buyStarsPrompt(amount) {
+            closeModal('topup-modal');
+            try {
+                let res = await fetch('/api/create-invoice', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId, amount: amount })
+                });
+                let data = await res.json();
+                if(data.invoice_link) {
+                    tg.openInvoice(data.invoice_link, async (status) => {
+                        if(status === 'paid') {
+                            alert("Оплата прошла успешно!");
+                            loadUserData();
+                        }
+                    });
+                }
+            } catch(e) {
+                alert("Ошибка создания счета");
+            }
+        }
+
+        function copyRefLink() {
+            navigator.clipboard.writeText(`https://t.me/your_bot?start=ref_${userId}`);
+            alert("Реферальная ссылка скопирована!");
         }
 
         init();
