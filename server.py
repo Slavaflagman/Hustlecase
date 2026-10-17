@@ -56,22 +56,22 @@ def init_db():
 
 init_db()
 
-# Каталог кейсов
+# Каталог кейсов (Все названия на английском)
 CASES = [
     {
         "id": "default",
         "name": "Default Case",
         "price": 75,
         "gifts": [
-            {"id": "gift_heart", "name": "Сердце", "price": 15},
-            {"id": "gift_bear", "name": "Мишка", "price": 15},
-            {"id": "gift_box", "name": "Подарочная коробка", "price": 25},
-            {"id": "gift_rose", "name": "Роза", "price": 25},
-            {"id": "gift_cake", "name": "Торт", "price": 50},
-            {"id": "gift_rocket", "name": "Ракета", "price": 50},
-            {"id": "gift_trophy", "name": "Кубок", "price": 100},
-            {"id": "gift_ring", "name": "Кольцо", "price": 100},
-            {"id": "gift_diamond", "name": "Алмаз", "price": 100},
+            {"id": "gift_heart", "name": "Heart", "price": 15},
+            {"id": "gift_bear", "name": "Teddy Bear", "price": 15},
+            {"id": "gift_box", "name": "Gift Box", "price": 25},
+            {"id": "gift_rose", "name": "Rose", "price": 25},
+            {"id": "gift_cake", "name": "Cake", "price": 50},
+            {"id": "gift_rocket", "name": "Rocket", "price": 50},
+            {"id": "gift_trophy", "name": "Trophy", "price": 100},
+            {"id": "gift_ring", "name": "Ring", "price": 100},
+            {"id": "gift_diamond", "name": "Diamond", "price": 100},
         ]
     },
     {
@@ -79,13 +79,13 @@ CASES = [
         "name": "Premium Case",
         "price": 199,
         "gifts": [
-            {"id": "gift_tulip", "name": "Тюльпан", "price": 25},
-            {"id": "gift_rocket", "name": "Ракета", "price": 50},
-            {"id": "gift_champagne", "name": "Шампанское", "price": 50},
-            {"id": "nft_noodles", "name": "Лапша NFT", "price": 470},
-            {"id": "nft_torch", "name": "Факел NFT", "price": 480},
-            {"id": "nft_icecream", "name": "Эскимо NFT", "price": 490},
-            {"id": "nft_lollipop", "name": "Леденец NFT", "price": 500},
+            {"id": "gift_tulip", "name": "Tulip", "price": 25},
+            {"id": "gift_rocket", "name": "Rocket", "price": 50},
+            {"id": "gift_champagne", "name": "Champagne", "price": 50},
+            {"id": "nft_noodles", "name": "Noodles NFT", "price": 470},
+            {"id": "nft_torch", "name": "Torch NFT", "price": 480},
+            {"id": "nft_icecream", "name": "Ice Cream NFT", "price": 490},
+            {"id": "nft_lollipop", "name": "Lollipop NFT", "price": 500},
         ]
     },
     {
@@ -93,13 +93,13 @@ CASES = [
         "name": "Pumpkin Case",
         "price": 349,
         "gifts": [
-            {"id": "gift_diamond", "name": "Алмаз", "price": 100},
-            {"id": "gift_rocket", "name": "Ракета", "price": 50},
-            {"id": "gift_champagne", "name": "Шампанское", "price": 50},
-            {"id": "nft_torch", "name": "Факел NFT", "price": 480},
-            {"id": "nft_coffee", "name": "Стаканчик NFT", "price": 500},
-            {"id": "nft_backpack", "name": "Рюкзак NFT", "price": 500},
-            {"id": "nft_lantern", "name": "Фонарь NFT", "price": 620},
+            {"id": "gift_diamond", "name": "Diamond", "price": 100},
+            {"id": "gift_rocket", "name": "Rocket", "price": 50},
+            {"id": "gift_champagne", "name": "Champagne", "price": 50},
+            {"id": "nft_torch", "name": "Torch NFT", "price": 480},
+            {"id": "nft_coffee", "name": "Coffee Cup NFT", "price": 500},
+            {"id": "nft_backpack", "name": "Backpack NFT", "price": 500},
+            {"id": "nft_lantern", "name": "Lantern NFT", "price": 620},
             {"id": "nft_mad_pumpkin", "name": "Mad Pumpkin NFT", "price": 1500},
         ]
     },
@@ -108,17 +108,17 @@ CASES = [
         "name": "Skull Case",
         "price": 499,
         "gifts": [
-            {"id": "gift_trophy", "name": "Кубок", "price": 100},
-            {"id": "gift_ring", "name": "Кольцо", "price": 100},
-            {"id": "gift_diamond", "name": "Алмаз", "price": 100},
-            {"id": "nft_book", "name": "Книга NFT", "price": 550},
-            {"id": "nft_jester", "name": "Колпак NFT", "price": 570},
-            {"id": "nft_medal", "name": "Медаль NFT", "price": 590},
-            {"id": "nft_sparkler", "name": "Искры NFT", "price": 612},
-            {"id": "nft_keycap", "name": "Клавиша NFT", "price": 628},
-            {"id": "nft_mushroom", "name": "Гриб NFT", "price": 628},
-            {"id": "nft_cigar", "name": "Сигара NFT", "price": 1507},
-            {"id": "nft_cats", "name": "Котики NFT", "price": 1972},
+            {"id": "gift_trophy", "name": "Trophy", "price": 100},
+            {"id": "gift_ring", "name": "Ring", "price": 100},
+            {"id": "gift_diamond", "name": "Diamond", "price": 100},
+            {"id": "nft_book", "name": "Book NFT", "price": 550},
+            {"id": "nft_jester", "name": "Jester Cap NFT", "price": 570},
+            {"id": "nft_medal", "name": "Medal NFT", "price": 590},
+            {"id": "nft_sparkler", "name": "Sparkler NFT", "price": 612},
+            {"id": "nft_keycap", "name": "Keycap NFT", "price": 628},
+            {"id": "nft_mushroom", "name": "Mushroom NFT", "price": 628},
+            {"id": "nft_cigar", "name": "Cigar NFT", "price": 1507},
+            {"id": "nft_cats", "name": "Cats NFT", "price": 1972},
             {"id": "nft_electric_skull", "name": "Electric Skull NFT", "price": 2500},
         ]
     },
@@ -127,10 +127,16 @@ CASES = [
         "name": "NFT Case",
         "price": 999,
         "gifts": [
-            {"id": "nft_lolpop", "name": "Lol Pop NFT", "price": 1211},
-            {"id": "nft_cigar", "name": "Сигара NFT", "price": 1507},
-            {"id": "nft_cats", "name": "Котики NFT", "price": 1972},
-            {"id": "nft_electric_skull", "name": "Electric Skull NFT", "price": 2500},
+            {"id": "nft_candle", "name": "Heart Candle NFT", "price": 1075},
+            {"id": "nft_heart_locket", "name": "Heart Locket NFT", "price": 2107},
+            {"id": "nft_pumpkin_new", "name": "Mad Pumpkin NFT", "price": 1310},
+            {"id": "nft_skull_flower", "name": "Skull Flower NFT", "price": 1200},
+            {"id": "nft_cigar_new", "name": "Cigar NFT", "price": 3583},
+            {"id": "nft_crystal_eagle", "name": "Crystal Eagle NFT", "price": 2601},
+            {"id": "nft_gramophone", "name": "Gramophone NFT", "price": 1295},
+            {"id": "nft_broom", "name": "Witch Broom NFT", "price": 1265},
+            {"id": "nft_voodoo", "name": "Voodoo Doll NFT", "price": 3497},
+            {"id": "nft_telegram_ring", "name": "Telegram Ring NFT", "price": 3317},
         ]
     }
 ]
@@ -149,7 +155,7 @@ async def read_index():
     if os.path.exists("index.html"):
         with open("index.html", "r", encoding="utf-8") as f:
             return f.read()
-    return "<h1>Файл index.html не найден в корне проекта!</h1>"
+    return "<h1>index.html file not found!</h1>"
 
 @app.get("/api/cases")
 async def get_cases():
@@ -175,17 +181,17 @@ async def get_user(user_id: int):
 @app.post("/api/create-invoice")
 async def create_invoice(req: InvoiceRequest):
     try:
-        prices = [LabeledPrice(label="Пополнение баланса", amount=req.amount)]
+        prices = [LabeledPrice(label="Top-up balance", amount=req.amount)]
         invoice_link = await bot.create_invoice_link(
-            title="Пополнение баланса",
-            description=f"Пополнение на {req.amount} ⭐ в Hustle Case",
+            title="Balance Top-up",
+            description=f"Top-up {req.amount} ⭐ in Hustle Case",
             payload=f"topup_{req.user_id}_{req.amount}",
             currency="XTR",
             prices=prices
         )
         
         try:
-            await bot.send_message(ADMIN_TELEGRAM_ID, f"🔔 Создан инвойс на пополнение!\n👤 Юзер: <code>{req.user_id}</code>\n💰 Сумма: <b>{req.amount} ⭐</b>", parse_mode="HTML")
+            await bot.send_message(ADMIN_TELEGRAM_ID, f"🔔 New deposit invoice!\n👤 User: <code>{req.user_id}</code>\n💰 Amount: <b>{req.amount} ⭐</b>", parse_mode="HTML")
         except:
             pass
 
@@ -197,7 +203,7 @@ async def create_invoice(req: InvoiceRequest):
 async def spin_case(req: SpinRequest):
     case = next((c for c in CASES if c["id"] == req.case_id), None)
     if not case:
-        raise HTTPException(status_code=404, detail="Кейс не найден")
+        raise HTTPException(status_code=404, detail="Case not found")
 
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -209,7 +215,7 @@ async def spin_case(req: SpinRequest):
     if not req.is_demo:
         if balance < case["price"]:
             conn.close()
-            raise HTTPException(status_code=400, detail="Недостаточно звезд на балансе")
+            raise HTTPException(status_code=400, detail="Insufficient Stars balance")
         
         cursor.execute("UPDATE users SET balance = balance - ? WHERE user_id = ?", (case["price"], req.user_id))
         
@@ -221,7 +227,7 @@ async def spin_case(req: SpinRequest):
     stats_row = cursor.fetchone()
     payout_pool = stats_row[0] if stats_row else 0
 
-    # Честный расчет: пул + 40% от текущего кейса
+    # Strict financial safety formula
     pool_contribution = case["price"] * 0.40
     max_allowed_prize = payout_pool + pool_contribution
 
@@ -238,7 +244,7 @@ async def spin_case(req: SpinRequest):
         conn.commit()
 
         try:
-            await bot.send_message(ADMIN_TELEGRAM_ID, f"🎁 Игрок открыл кейс!\n👤 Юзер: <code>{req.user_id}</code>\n📦 Кейс: <b>{case['name']}</b>\n🏆 Выиграл: <b>{won_gift['name']} ({won_gift['price']} ⭐)</b>", parse_mode="HTML")
+            await bot.send_message(ADMIN_TELEGRAM_ID, f"🎁 Case opened!\n👤 User: <code>{req.user_id}</code>\n📦 Case: <b>{case['name']}</b>\n🏆 Won: <b>{won_gift['name']} ({won_gift['price']} ⭐)</b>", parse_mode="HTML")
         except:
             pass
 
@@ -246,9 +252,8 @@ async def spin_case(req: SpinRequest):
     new_balance = cursor.fetchone()[0]
     conn.close()
 
-    # Генерация точной ленты рулетки для фронтенда
     tape = [random.choice(case["gifts"]) for _ in range(35)]
-    winner_index = 25  # Точная позиция выигрыша в массиве
+    winner_index = 25
     tape[winner_index] = won_gift
     tape.extend([random.choice(case["gifts"]) for _ in range(5)])
 
