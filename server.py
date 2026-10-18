@@ -19,13 +19,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-BOT_TOKEN = "8840874512:AAHcjdgyFj5l6J-_oYk2PL_CafNfI6oQXB4"
-ADMIN_TELEGRAM_ID = 8510236481  # Твой Telegram ID
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8840874512:AAHcjdgyFj5l6J-_oYk2PL_CafNfI6oQXB4")
+ADMIN_TELEGRAM_ID = int(os.getenv("ADMIN_TELEGRAM_ID", "8510236481"))
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Хэндлер команды /start
+# Обработчик /start: только ссылка на канал и кнопка запуска
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message):
     web_app_url = "https://hustlecase-9svz.vercel.app/?v=2"
@@ -40,13 +40,9 @@ async def start_cmd(message: types.Message):
         ]
     )
     
-    caption_text = (
-        "Добро пожаловать в Hustle Case! 🎰\n\n"
-        "Открывай кейсы, выбивай крутой лут и испытывай удачу.\n\n"
-        "Наш официальный канал: https://t.me/hustlecaseInfo"
-    )
+    caption_text = "https://t.me/hustlecaseInfo"
     
-    await message.answer(caption_text, reply_markup=keyboard, disable_web_page_preview=True)
+    await message.answer(caption_text, reply_markup=keyboard)
 
 # Инициализация базы данных
 def init_db():
@@ -80,7 +76,7 @@ def init_db():
 
 init_db()
 
-# Каталог кейсов (Все названия на английском)
+# Каталог кейсов
 CASES = [
     {
         "id": "default",
@@ -251,7 +247,6 @@ async def spin_case(req: SpinRequest):
     stats_row = cursor.fetchone()
     payout_pool = stats_row[0] if stats_row else 0
 
-    # Strict financial safety formula
     pool_contribution = case["price"] * 0.40
     max_allowed_prize = payout_pool + pool_contribution
 
