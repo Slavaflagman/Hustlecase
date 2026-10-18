@@ -25,10 +25,10 @@ ADMIN_TELEGRAM_ID = int(os.getenv("ADMIN_TELEGRAM_ID", "8510236481"))
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Обработчик /start: ссылки на канал, бота и кнопка открытия WebApp
+# Обработчик /start: ссылки на канал и кнопка с новой ссылкой на Render
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message):
-    web_app_url = "https://t.me/HustleCaseBot/app?v=2"
+    web_app_url = "https://hustlecase-17.onrender.com/?v=2"
     
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
