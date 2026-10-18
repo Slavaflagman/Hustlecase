@@ -25,10 +25,11 @@ ADMIN_TELEGRAM_ID = int(os.getenv("ADMIN_TELEGRAM_ID", "8510236481"))
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Обработчик /start: только ссылка на канал и кнопка запуска
+# Обработчик /start: ссылки на канал, бота и кнопка открытия WebApp
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message):
-    web_app_url = "https://hustlecase-9svz.vercel.app/?v=2"
+    web_app_url = "https://t.me/HustleCaseBot/app?v=2"
+    
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -40,7 +41,10 @@ async def start_cmd(message: types.Message):
         ]
     )
     
-    caption_text = "https://t.me/hustlecaseInfo"
+    caption_text = (
+        "📢 Наш канал: https://t.me/hustlecaseInfo\n"
+        "🤖 Бот: https://t.me/HustleCaseBot"
+    )
     
     await message.answer(caption_text, reply_markup=keyboard)
 
