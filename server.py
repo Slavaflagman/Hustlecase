@@ -6,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import LabeledPrice
+from aiogram.filters import CommandStart
+from aiogram.types import LabeledPrice, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 app = FastAPI(title="Hustle Case API")
 
@@ -23,6 +24,29 @@ ADMIN_TELEGRAM_ID = 8510236481  # Твой Telegram ID
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+
+# Хэндлер команды /start
+@dp.message(CommandStart())
+async def start_cmd(message: types.Message):
+    web_app_url = "https://hustlecase-9svz.vercel.app/?v=2"
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🚀 Открыть Hustle Case", 
+                    web_app=WebAppInfo(url=web_app_url)
+                )
+            ]
+        ]
+    )
+    
+    caption_text = (
+        "Добро пожаловать в Hustle Case! 🎰\n\n"
+        "Открывай кейсы, выбивай крутой лут и испытывай удачу.\n\n"
+        "Наш официальный канал: https://t.me/hustlecaseInfo"
+    )
+    
+    await message.answer(caption_text, reply_markup=keyboard, disable_web_page_preview=True)
 
 # Инициализация базы данных
 def init_db():
